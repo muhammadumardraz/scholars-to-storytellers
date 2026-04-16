@@ -3,8 +3,8 @@ param(
     [string]$Department,
     [string]$WorkDir     = "$env:USERPROFILE\Downloads",
     [string]$EmailForAPI = "pakgeniusatwork@gmail.com",
-    [int]$MinWorksCount  = 5,
-    [int]$MinCitedBy     = 10,
+    [int]$MinWorksCount  = 3,
+    [int]$MinCitedBy     = 0,
     [int]$DelayMs        = 500,
     [int]$BookBatch      = 30,
     [int]$EmailDelayMs   = 400
@@ -35,6 +35,11 @@ if (-not $subfields.ContainsKey($Department)) {
 
 $sfId    = $subfields[$Department]
 $sfSafe  = $Department -replace '[^a-zA-Z0-9]','_'
+
+# No citation floor - include anyone who has published in the field
+# Cap at 200 pages (40,000 works) per department to keep runtime sane
+$minCitations = 0
+$maxScanPages = 200
 
 $withEmailCsv = "$WorkDir\SOP_With_Emails.csv"
 $noEmailCsv   = "$WorkDir\SOP_No_Email.csv"
@@ -311,8 +316,9 @@ $authorFieldMap = @{}
 $worksScanned = 0
 
 while ($true) {
+    $citFilter = if ($minCitations -gt 0) { ",cited_by_count:>$minCitations" } else { "" }
     $url = "https://api.openalex.org/works?" +
-           "filter=institutions.country_code:US,primary_topic.subfield.id:$sfId,cited_by_count:>200" +
+           "filter=institutions.country_code:US,primary_topic.subfield.id:$sfId$citFilter" +
            $amp + "sort=cited_by_count:desc" +
            $amp + "per_page=200" +
            $amp + "cursor=" + [uri]::EscapeDataString($cursor) +
@@ -320,6 +326,7 @@ while ($true) {
     $data = Invoke-OA $url
     Start-Sleep -Milliseconds $DelayMs
     if (-not $data -or -not $data.results -or $data.results.Count -eq 0) { break }
+    if ($pageCount -ge $maxScanPages) { Write-Host "    [Page cap $maxScanPages reached]" -ForegroundColor DarkYellow; break }
 
     foreach ($work in $data.results) {
         foreach ($auth in $work.authorships) {
