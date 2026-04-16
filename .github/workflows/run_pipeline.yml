@@ -14,193 +14,1050 @@ env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 # Each department runs independently - one timeout never kills the others
+# Each job runs up to 6 batches of Phase 4 with artifact saves in between,
+# so even a timeout only loses the last batch (not hours of work).
 jobs:
 
   anthropology:
     name: Anthropology
     runs-on: windows-latest
-    timeout-minutes: 360
+    timeout-minutes: 355
     if: ${{ github.event.inputs.department == '' || github.event.inputs.department == 'Anthropology' }}
     steps:
       - uses: actions/checkout@v4
-      - name: Run
+
+      - name: Batch 1 (Phases 1-3 + start Phase 4)
         shell: pwsh
+        timeout-minutes: 90
+        continue-on-error: true
         env:
           EMAIL_FOR_API: ${{ secrets.EMAIL_FOR_API }}
         run: .\run_dept.ps1 -Department Anthropology -WorkDir "$env:GITHUB_WORKSPACE" -EmailForAPI "$env:EMAIL_FOR_API" -MinCitationsWorks 50
-      - name: Upload results
+
+      - name: Save progress after batch 1
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: results-Anthropology
           path: "*.csv"
           if-no-files-found: ignore
+          overwrite: true
+          retention-days: 90
+
+      - name: Batch 2
+        shell: pwsh
+        timeout-minutes: 50
+        continue-on-error: true
+        env:
+          EMAIL_FOR_API: ${{ secrets.EMAIL_FOR_API }}
+        run: .\run_dept.ps1 -Department Anthropology -WorkDir "$env:GITHUB_WORKSPACE" -EmailForAPI "$env:EMAIL_FOR_API" -MinCitationsWorks 50
+
+      - name: Save progress after batch 2
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: results-Anthropology
+          path: "*.csv"
+          if-no-files-found: ignore
+          overwrite: true
+          retention-days: 90
+
+      - name: Batch 3
+        shell: pwsh
+        timeout-minutes: 50
+        continue-on-error: true
+        env:
+          EMAIL_FOR_API: ${{ secrets.EMAIL_FOR_API }}
+        run: .\run_dept.ps1 -Department Anthropology -WorkDir "$env:GITHUB_WORKSPACE" -EmailForAPI "$env:EMAIL_FOR_API" -MinCitationsWorks 50
+
+      - name: Save progress after batch 3
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: results-Anthropology
+          path: "*.csv"
+          if-no-files-found: ignore
+          overwrite: true
+          retention-days: 90
+
+      - name: Batch 4
+        shell: pwsh
+        timeout-minutes: 50
+        continue-on-error: true
+        env:
+          EMAIL_FOR_API: ${{ secrets.EMAIL_FOR_API }}
+        run: .\run_dept.ps1 -Department Anthropology -WorkDir "$env:GITHUB_WORKSPACE" -EmailForAPI "$env:EMAIL_FOR_API" -MinCitationsWorks 50
+
+      - name: Save progress after batch 4
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: results-Anthropology
+          path: "*.csv"
+          if-no-files-found: ignore
+          overwrite: true
+          retention-days: 90
+
+      - name: Batch 5
+        shell: pwsh
+        timeout-minutes: 50
+        continue-on-error: true
+        env:
+          EMAIL_FOR_API: ${{ secrets.EMAIL_FOR_API }}
+        run: .\run_dept.ps1 -Department Anthropology -WorkDir "$env:GITHUB_WORKSPACE" -EmailForAPI "$env:EMAIL_FOR_API" -MinCitationsWorks 50
+
+      - name: Save progress after batch 5
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: results-Anthropology
+          path: "*.csv"
+          if-no-files-found: ignore
+          overwrite: true
+          retention-days: 90
+
+      - name: Batch 6
+        shell: pwsh
+        timeout-minutes: 45
+        continue-on-error: true
+        env:
+          EMAIL_FOR_API: ${{ secrets.EMAIL_FOR_API }}
+        run: .\run_dept.ps1 -Department Anthropology -WorkDir "$env:GITHUB_WORKSPACE" -EmailForAPI "$env:EMAIL_FOR_API" -MinCitationsWorks 50
+
+      - name: Final save
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: results-Anthropology
+          path: "*.csv"
+          if-no-files-found: ignore
+          overwrite: true
           retention-days: 90
 
   history:
     name: History
     runs-on: windows-latest
-    timeout-minutes: 360
+    timeout-minutes: 355
     if: ${{ github.event.inputs.department == '' || github.event.inputs.department == 'History' }}
     steps:
       - uses: actions/checkout@v4
-      - name: Run
+
+      - name: Batch 1 (Phases 1-3 + start Phase 4)
         shell: pwsh
+        timeout-minutes: 90
+        continue-on-error: true
         env:
           EMAIL_FOR_API: ${{ secrets.EMAIL_FOR_API }}
         run: .\run_dept.ps1 -Department History -WorkDir "$env:GITHUB_WORKSPACE" -EmailForAPI "$env:EMAIL_FOR_API"
-      - name: Upload results
+
+      - name: Save progress after batch 1
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: results-History
           path: "*.csv"
           if-no-files-found: ignore
+          overwrite: true
+          retention-days: 90
+
+      - name: Batch 2
+        shell: pwsh
+        timeout-minutes: 50
+        continue-on-error: true
+        env:
+          EMAIL_FOR_API: ${{ secrets.EMAIL_FOR_API }}
+        run: .\run_dept.ps1 -Department History -WorkDir "$env:GITHUB_WORKSPACE" -EmailForAPI "$env:EMAIL_FOR_API"
+
+      - name: Save progress after batch 2
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: results-History
+          path: "*.csv"
+          if-no-files-found: ignore
+          overwrite: true
+          retention-days: 90
+
+      - name: Batch 3
+        shell: pwsh
+        timeout-minutes: 50
+        continue-on-error: true
+        env:
+          EMAIL_FOR_API: ${{ secrets.EMAIL_FOR_API }}
+        run: .\run_dept.ps1 -Department History -WorkDir "$env:GITHUB_WORKSPACE" -EmailForAPI "$env:EMAIL_FOR_API"
+
+      - name: Save progress after batch 3
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: results-History
+          path: "*.csv"
+          if-no-files-found: ignore
+          overwrite: true
+          retention-days: 90
+
+      - name: Batch 4
+        shell: pwsh
+        timeout-minutes: 50
+        continue-on-error: true
+        env:
+          EMAIL_FOR_API: ${{ secrets.EMAIL_FOR_API }}
+        run: .\run_dept.ps1 -Department History -WorkDir "$env:GITHUB_WORKSPACE" -EmailForAPI "$env:EMAIL_FOR_API"
+
+      - name: Save progress after batch 4
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: results-History
+          path: "*.csv"
+          if-no-files-found: ignore
+          overwrite: true
+          retention-days: 90
+
+      - name: Batch 5
+        shell: pwsh
+        timeout-minutes: 50
+        continue-on-error: true
+        env:
+          EMAIL_FOR_API: ${{ secrets.EMAIL_FOR_API }}
+        run: .\run_dept.ps1 -Department History -WorkDir "$env:GITHUB_WORKSPACE" -EmailForAPI "$env:EMAIL_FOR_API"
+
+      - name: Save progress after batch 5
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: results-History
+          path: "*.csv"
+          if-no-files-found: ignore
+          overwrite: true
+          retention-days: 90
+
+      - name: Batch 6
+        shell: pwsh
+        timeout-minutes: 45
+        continue-on-error: true
+        env:
+          EMAIL_FOR_API: ${{ secrets.EMAIL_FOR_API }}
+        run: .\run_dept.ps1 -Department History -WorkDir "$env:GITHUB_WORKSPACE" -EmailForAPI "$env:EMAIL_FOR_API"
+
+      - name: Final save
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: results-History
+          path: "*.csv"
+          if-no-files-found: ignore
+          overwrite: true
           retention-days: 90
 
   sociology:
     name: Sociology
     runs-on: windows-latest
-    timeout-minutes: 360
+    timeout-minutes: 355
     if: ${{ github.event.inputs.department == '' || github.event.inputs.department == 'Sociology' }}
     steps:
       - uses: actions/checkout@v4
-      - name: Run
+
+      - name: Batch 1 (Phases 1-3 + start Phase 4)
         shell: pwsh
+        timeout-minutes: 90
+        continue-on-error: true
         env:
           EMAIL_FOR_API: ${{ secrets.EMAIL_FOR_API }}
         run: .\run_dept.ps1 -Department Sociology -WorkDir "$env:GITHUB_WORKSPACE" -EmailForAPI "$env:EMAIL_FOR_API"
-      - name: Upload results
+
+      - name: Save progress after batch 1
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: results-Sociology
           path: "*.csv"
           if-no-files-found: ignore
+          overwrite: true
+          retention-days: 90
+
+      - name: Batch 2
+        shell: pwsh
+        timeout-minutes: 50
+        continue-on-error: true
+        env:
+          EMAIL_FOR_API: ${{ secrets.EMAIL_FOR_API }}
+        run: .\run_dept.ps1 -Department Sociology -WorkDir "$env:GITHUB_WORKSPACE" -EmailForAPI "$env:EMAIL_FOR_API"
+
+      - name: Save progress after batch 2
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: results-Sociology
+          path: "*.csv"
+          if-no-files-found: ignore
+          overwrite: true
+          retention-days: 90
+
+      - name: Batch 3
+        shell: pwsh
+        timeout-minutes: 50
+        continue-on-error: true
+        env:
+          EMAIL_FOR_API: ${{ secrets.EMAIL_FOR_API }}
+        run: .\run_dept.ps1 -Department Sociology -WorkDir "$env:GITHUB_WORKSPACE" -EmailForAPI "$env:EMAIL_FOR_API"
+
+      - name: Save progress after batch 3
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: results-Sociology
+          path: "*.csv"
+          if-no-files-found: ignore
+          overwrite: true
+          retention-days: 90
+
+      - name: Batch 4
+        shell: pwsh
+        timeout-minutes: 50
+        continue-on-error: true
+        env:
+          EMAIL_FOR_API: ${{ secrets.EMAIL_FOR_API }}
+        run: .\run_dept.ps1 -Department Sociology -WorkDir "$env:GITHUB_WORKSPACE" -EmailForAPI "$env:EMAIL_FOR_API"
+
+      - name: Save progress after batch 4
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: results-Sociology
+          path: "*.csv"
+          if-no-files-found: ignore
+          overwrite: true
+          retention-days: 90
+
+      - name: Batch 5
+        shell: pwsh
+        timeout-minutes: 50
+        continue-on-error: true
+        env:
+          EMAIL_FOR_API: ${{ secrets.EMAIL_FOR_API }}
+        run: .\run_dept.ps1 -Department Sociology -WorkDir "$env:GITHUB_WORKSPACE" -EmailForAPI "$env:EMAIL_FOR_API"
+
+      - name: Save progress after batch 5
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: results-Sociology
+          path: "*.csv"
+          if-no-files-found: ignore
+          overwrite: true
+          retention-days: 90
+
+      - name: Batch 6
+        shell: pwsh
+        timeout-minutes: 45
+        continue-on-error: true
+        env:
+          EMAIL_FOR_API: ${{ secrets.EMAIL_FOR_API }}
+        run: .\run_dept.ps1 -Department Sociology -WorkDir "$env:GITHUB_WORKSPACE" -EmailForAPI "$env:EMAIL_FOR_API"
+
+      - name: Final save
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: results-Sociology
+          path: "*.csv"
+          if-no-files-found: ignore
+          overwrite: true
           retention-days: 90
 
   economics:
     name: Economics
     runs-on: windows-latest
-    timeout-minutes: 360
+    timeout-minutes: 355
     if: ${{ github.event.inputs.department == '' || github.event.inputs.department == 'Economics' }}
     steps:
       - uses: actions/checkout@v4
-      - name: Run
+
+      - name: Batch 1 (Phases 1-3 + start Phase 4)
         shell: pwsh
+        timeout-minutes: 90
+        continue-on-error: true
         env:
           EMAIL_FOR_API: ${{ secrets.EMAIL_FOR_API }}
         run: .\run_dept.ps1 -Department Economics -WorkDir "$env:GITHUB_WORKSPACE" -EmailForAPI "$env:EMAIL_FOR_API"
-      - name: Upload results
+
+      - name: Save progress after batch 1
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: results-Economics
           path: "*.csv"
           if-no-files-found: ignore
+          overwrite: true
+          retention-days: 90
+
+      - name: Batch 2
+        shell: pwsh
+        timeout-minutes: 50
+        continue-on-error: true
+        env:
+          EMAIL_FOR_API: ${{ secrets.EMAIL_FOR_API }}
+        run: .\run_dept.ps1 -Department Economics -WorkDir "$env:GITHUB_WORKSPACE" -EmailForAPI "$env:EMAIL_FOR_API"
+
+      - name: Save progress after batch 2
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: results-Economics
+          path: "*.csv"
+          if-no-files-found: ignore
+          overwrite: true
+          retention-days: 90
+
+      - name: Batch 3
+        shell: pwsh
+        timeout-minutes: 50
+        continue-on-error: true
+        env:
+          EMAIL_FOR_API: ${{ secrets.EMAIL_FOR_API }}
+        run: .\run_dept.ps1 -Department Economics -WorkDir "$env:GITHUB_WORKSPACE" -EmailForAPI "$env:EMAIL_FOR_API"
+
+      - name: Save progress after batch 3
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: results-Economics
+          path: "*.csv"
+          if-no-files-found: ignore
+          overwrite: true
+          retention-days: 90
+
+      - name: Batch 4
+        shell: pwsh
+        timeout-minutes: 50
+        continue-on-error: true
+        env:
+          EMAIL_FOR_API: ${{ secrets.EMAIL_FOR_API }}
+        run: .\run_dept.ps1 -Department Economics -WorkDir "$env:GITHUB_WORKSPACE" -EmailForAPI "$env:EMAIL_FOR_API"
+
+      - name: Save progress after batch 4
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: results-Economics
+          path: "*.csv"
+          if-no-files-found: ignore
+          overwrite: true
+          retention-days: 90
+
+      - name: Batch 5
+        shell: pwsh
+        timeout-minutes: 50
+        continue-on-error: true
+        env:
+          EMAIL_FOR_API: ${{ secrets.EMAIL_FOR_API }}
+        run: .\run_dept.ps1 -Department Economics -WorkDir "$env:GITHUB_WORKSPACE" -EmailForAPI "$env:EMAIL_FOR_API"
+
+      - name: Save progress after batch 5
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: results-Economics
+          path: "*.csv"
+          if-no-files-found: ignore
+          overwrite: true
+          retention-days: 90
+
+      - name: Batch 6
+        shell: pwsh
+        timeout-minutes: 45
+        continue-on-error: true
+        env:
+          EMAIL_FOR_API: ${{ secrets.EMAIL_FOR_API }}
+        run: .\run_dept.ps1 -Department Economics -WorkDir "$env:GITHUB_WORKSPACE" -EmailForAPI "$env:EMAIL_FOR_API"
+
+      - name: Final save
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: results-Economics
+          path: "*.csv"
+          if-no-files-found: ignore
+          overwrite: true
           retention-days: 90
 
   geography:
     name: Geography
     runs-on: windows-latest
-    timeout-minutes: 360
+    timeout-minutes: 355
     if: ${{ github.event.inputs.department == '' || github.event.inputs.department == 'Geography' }}
     steps:
       - uses: actions/checkout@v4
-      - name: Run
+
+      - name: Batch 1 (Phases 1-3 + start Phase 4)
         shell: pwsh
+        timeout-minutes: 90
+        continue-on-error: true
         env:
           EMAIL_FOR_API: ${{ secrets.EMAIL_FOR_API }}
         run: .\run_dept.ps1 -Department Geography -WorkDir "$env:GITHUB_WORKSPACE" -EmailForAPI "$env:EMAIL_FOR_API"
-      - name: Upload results
+
+      - name: Save progress after batch 1
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: results-Geography
           path: "*.csv"
           if-no-files-found: ignore
+          overwrite: true
+          retention-days: 90
+
+      - name: Batch 2
+        shell: pwsh
+        timeout-minutes: 50
+        continue-on-error: true
+        env:
+          EMAIL_FOR_API: ${{ secrets.EMAIL_FOR_API }}
+        run: .\run_dept.ps1 -Department Geography -WorkDir "$env:GITHUB_WORKSPACE" -EmailForAPI "$env:EMAIL_FOR_API"
+
+      - name: Save progress after batch 2
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: results-Geography
+          path: "*.csv"
+          if-no-files-found: ignore
+          overwrite: true
+          retention-days: 90
+
+      - name: Batch 3
+        shell: pwsh
+        timeout-minutes: 50
+        continue-on-error: true
+        env:
+          EMAIL_FOR_API: ${{ secrets.EMAIL_FOR_API }}
+        run: .\run_dept.ps1 -Department Geography -WorkDir "$env:GITHUB_WORKSPACE" -EmailForAPI "$env:EMAIL_FOR_API"
+
+      - name: Save progress after batch 3
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: results-Geography
+          path: "*.csv"
+          if-no-files-found: ignore
+          overwrite: true
+          retention-days: 90
+
+      - name: Batch 4
+        shell: pwsh
+        timeout-minutes: 50
+        continue-on-error: true
+        env:
+          EMAIL_FOR_API: ${{ secrets.EMAIL_FOR_API }}
+        run: .\run_dept.ps1 -Department Geography -WorkDir "$env:GITHUB_WORKSPACE" -EmailForAPI "$env:EMAIL_FOR_API"
+
+      - name: Save progress after batch 4
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: results-Geography
+          path: "*.csv"
+          if-no-files-found: ignore
+          overwrite: true
+          retention-days: 90
+
+      - name: Batch 5
+        shell: pwsh
+        timeout-minutes: 50
+        continue-on-error: true
+        env:
+          EMAIL_FOR_API: ${{ secrets.EMAIL_FOR_API }}
+        run: .\run_dept.ps1 -Department Geography -WorkDir "$env:GITHUB_WORKSPACE" -EmailForAPI "$env:EMAIL_FOR_API"
+
+      - name: Save progress after batch 5
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: results-Geography
+          path: "*.csv"
+          if-no-files-found: ignore
+          overwrite: true
+          retention-days: 90
+
+      - name: Batch 6
+        shell: pwsh
+        timeout-minutes: 45
+        continue-on-error: true
+        env:
+          EMAIL_FOR_API: ${{ secrets.EMAIL_FOR_API }}
+        run: .\run_dept.ps1 -Department Geography -WorkDir "$env:GITHUB_WORKSPACE" -EmailForAPI "$env:EMAIL_FOR_API"
+
+      - name: Final save
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: results-Geography
+          path: "*.csv"
+          if-no-files-found: ignore
+          overwrite: true
           retention-days: 90
 
   literature:
     name: Literature/English
     runs-on: windows-latest
-    timeout-minutes: 360
+    timeout-minutes: 355
     if: ${{ github.event.inputs.department == '' || github.event.inputs.department == 'Literature/English' }}
     steps:
       - uses: actions/checkout@v4
-      - name: Run
+
+      - name: Batch 1 (Phases 1-3 + start Phase 4)
         shell: pwsh
+        timeout-minutes: 90
+        continue-on-error: true
         env:
           EMAIL_FOR_API: ${{ secrets.EMAIL_FOR_API }}
         run: .\run_dept.ps1 -Department "Literature/English" -WorkDir "$env:GITHUB_WORKSPACE" -EmailForAPI "$env:EMAIL_FOR_API"
-      - name: Upload results
+
+      - name: Save progress after batch 1
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: results-Literature
           path: "*.csv"
           if-no-files-found: ignore
+          overwrite: true
+          retention-days: 90
+
+      - name: Batch 2
+        shell: pwsh
+        timeout-minutes: 50
+        continue-on-error: true
+        env:
+          EMAIL_FOR_API: ${{ secrets.EMAIL_FOR_API }}
+        run: .\run_dept.ps1 -Department "Literature/English" -WorkDir "$env:GITHUB_WORKSPACE" -EmailForAPI "$env:EMAIL_FOR_API"
+
+      - name: Save progress after batch 2
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: results-Literature
+          path: "*.csv"
+          if-no-files-found: ignore
+          overwrite: true
+          retention-days: 90
+
+      - name: Batch 3
+        shell: pwsh
+        timeout-minutes: 50
+        continue-on-error: true
+        env:
+          EMAIL_FOR_API: ${{ secrets.EMAIL_FOR_API }}
+        run: .\run_dept.ps1 -Department "Literature/English" -WorkDir "$env:GITHUB_WORKSPACE" -EmailForAPI "$env:EMAIL_FOR_API"
+
+      - name: Save progress after batch 3
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: results-Literature
+          path: "*.csv"
+          if-no-files-found: ignore
+          overwrite: true
+          retention-days: 90
+
+      - name: Batch 4
+        shell: pwsh
+        timeout-minutes: 50
+        continue-on-error: true
+        env:
+          EMAIL_FOR_API: ${{ secrets.EMAIL_FOR_API }}
+        run: .\run_dept.ps1 -Department "Literature/English" -WorkDir "$env:GITHUB_WORKSPACE" -EmailForAPI "$env:EMAIL_FOR_API"
+
+      - name: Save progress after batch 4
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: results-Literature
+          path: "*.csv"
+          if-no-files-found: ignore
+          overwrite: true
+          retention-days: 90
+
+      - name: Batch 5
+        shell: pwsh
+        timeout-minutes: 50
+        continue-on-error: true
+        env:
+          EMAIL_FOR_API: ${{ secrets.EMAIL_FOR_API }}
+        run: .\run_dept.ps1 -Department "Literature/English" -WorkDir "$env:GITHUB_WORKSPACE" -EmailForAPI "$env:EMAIL_FOR_API"
+
+      - name: Save progress after batch 5
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: results-Literature
+          path: "*.csv"
+          if-no-files-found: ignore
+          overwrite: true
+          retention-days: 90
+
+      - name: Batch 6
+        shell: pwsh
+        timeout-minutes: 45
+        continue-on-error: true
+        env:
+          EMAIL_FOR_API: ${{ secrets.EMAIL_FOR_API }}
+        run: .\run_dept.ps1 -Department "Literature/English" -WorkDir "$env:GITHUB_WORKSPACE" -EmailForAPI "$env:EMAIL_FOR_API"
+
+      - name: Final save
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: results-Literature
+          path: "*.csv"
+          if-no-files-found: ignore
+          overwrite: true
           retention-days: 90
 
   communication:
     name: Communication/Media
     runs-on: windows-latest
-    timeout-minutes: 360
+    timeout-minutes: 355
     if: ${{ github.event.inputs.department == '' || github.event.inputs.department == 'Communication/Media' }}
     steps:
       - uses: actions/checkout@v4
-      - name: Run
+
+      - name: Batch 1 (Phases 1-3 + start Phase 4)
         shell: pwsh
+        timeout-minutes: 90
+        continue-on-error: true
         env:
           EMAIL_FOR_API: ${{ secrets.EMAIL_FOR_API }}
         run: .\run_dept.ps1 -Department "Communication/Media" -WorkDir "$env:GITHUB_WORKSPACE" -EmailForAPI "$env:EMAIL_FOR_API"
-      - name: Upload results
+
+      - name: Save progress after batch 1
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: results-Communication
           path: "*.csv"
           if-no-files-found: ignore
+          overwrite: true
+          retention-days: 90
+
+      - name: Batch 2
+        shell: pwsh
+        timeout-minutes: 50
+        continue-on-error: true
+        env:
+          EMAIL_FOR_API: ${{ secrets.EMAIL_FOR_API }}
+        run: .\run_dept.ps1 -Department "Communication/Media" -WorkDir "$env:GITHUB_WORKSPACE" -EmailForAPI "$env:EMAIL_FOR_API"
+
+      - name: Save progress after batch 2
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: results-Communication
+          path: "*.csv"
+          if-no-files-found: ignore
+          overwrite: true
+          retention-days: 90
+
+      - name: Batch 3
+        shell: pwsh
+        timeout-minutes: 50
+        continue-on-error: true
+        env:
+          EMAIL_FOR_API: ${{ secrets.EMAIL_FOR_API }}
+        run: .\run_dept.ps1 -Department "Communication/Media" -WorkDir "$env:GITHUB_WORKSPACE" -EmailForAPI "$env:EMAIL_FOR_API"
+
+      - name: Save progress after batch 3
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: results-Communication
+          path: "*.csv"
+          if-no-files-found: ignore
+          overwrite: true
+          retention-days: 90
+
+      - name: Batch 4
+        shell: pwsh
+        timeout-minutes: 50
+        continue-on-error: true
+        env:
+          EMAIL_FOR_API: ${{ secrets.EMAIL_FOR_API }}
+        run: .\run_dept.ps1 -Department "Communication/Media" -WorkDir "$env:GITHUB_WORKSPACE" -EmailForAPI "$env:EMAIL_FOR_API"
+
+      - name: Save progress after batch 4
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: results-Communication
+          path: "*.csv"
+          if-no-files-found: ignore
+          overwrite: true
+          retention-days: 90
+
+      - name: Batch 5
+        shell: pwsh
+        timeout-minutes: 50
+        continue-on-error: true
+        env:
+          EMAIL_FOR_API: ${{ secrets.EMAIL_FOR_API }}
+        run: .\run_dept.ps1 -Department "Communication/Media" -WorkDir "$env:GITHUB_WORKSPACE" -EmailForAPI "$env:EMAIL_FOR_API"
+
+      - name: Save progress after batch 5
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: results-Communication
+          path: "*.csv"
+          if-no-files-found: ignore
+          overwrite: true
+          retention-days: 90
+
+      - name: Batch 6
+        shell: pwsh
+        timeout-minutes: 45
+        continue-on-error: true
+        env:
+          EMAIL_FOR_API: ${{ secrets.EMAIL_FOR_API }}
+        run: .\run_dept.ps1 -Department "Communication/Media" -WorkDir "$env:GITHUB_WORKSPACE" -EmailForAPI "$env:EMAIL_FOR_API"
+
+      - name: Final save
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: results-Communication
+          path: "*.csv"
+          if-no-files-found: ignore
+          overwrite: true
           retention-days: 90
 
   cultural-studies:
     name: Cultural Studies
     runs-on: windows-latest
-    timeout-minutes: 360
+    timeout-minutes: 355
     if: ${{ github.event.inputs.department == '' || github.event.inputs.department == 'Cultural Studies' }}
     steps:
       - uses: actions/checkout@v4
-      - name: Run
+
+      - name: Batch 1 (Phases 1-3 + start Phase 4)
         shell: pwsh
+        timeout-minutes: 90
+        continue-on-error: true
         env:
           EMAIL_FOR_API: ${{ secrets.EMAIL_FOR_API }}
         run: .\run_dept.ps1 -Department "Cultural Studies" -WorkDir "$env:GITHUB_WORKSPACE" -EmailForAPI "$env:EMAIL_FOR_API"
-      - name: Upload results
+
+      - name: Save progress after batch 1
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: results-CulturalStudies
           path: "*.csv"
           if-no-files-found: ignore
+          overwrite: true
+          retention-days: 90
+
+      - name: Batch 2
+        shell: pwsh
+        timeout-minutes: 50
+        continue-on-error: true
+        env:
+          EMAIL_FOR_API: ${{ secrets.EMAIL_FOR_API }}
+        run: .\run_dept.ps1 -Department "Cultural Studies" -WorkDir "$env:GITHUB_WORKSPACE" -EmailForAPI "$env:EMAIL_FOR_API"
+
+      - name: Save progress after batch 2
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: results-CulturalStudies
+          path: "*.csv"
+          if-no-files-found: ignore
+          overwrite: true
+          retention-days: 90
+
+      - name: Batch 3
+        shell: pwsh
+        timeout-minutes: 50
+        continue-on-error: true
+        env:
+          EMAIL_FOR_API: ${{ secrets.EMAIL_FOR_API }}
+        run: .\run_dept.ps1 -Department "Cultural Studies" -WorkDir "$env:GITHUB_WORKSPACE" -EmailForAPI "$env:EMAIL_FOR_API"
+
+      - name: Save progress after batch 3
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: results-CulturalStudies
+          path: "*.csv"
+          if-no-files-found: ignore
+          overwrite: true
+          retention-days: 90
+
+      - name: Batch 4
+        shell: pwsh
+        timeout-minutes: 50
+        continue-on-error: true
+        env:
+          EMAIL_FOR_API: ${{ secrets.EMAIL_FOR_API }}
+        run: .\run_dept.ps1 -Department "Cultural Studies" -WorkDir "$env:GITHUB_WORKSPACE" -EmailForAPI "$env:EMAIL_FOR_API"
+
+      - name: Save progress after batch 4
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: results-CulturalStudies
+          path: "*.csv"
+          if-no-files-found: ignore
+          overwrite: true
+          retention-days: 90
+
+      - name: Batch 5
+        shell: pwsh
+        timeout-minutes: 50
+        continue-on-error: true
+        env:
+          EMAIL_FOR_API: ${{ secrets.EMAIL_FOR_API }}
+        run: .\run_dept.ps1 -Department "Cultural Studies" -WorkDir "$env:GITHUB_WORKSPACE" -EmailForAPI "$env:EMAIL_FOR_API"
+
+      - name: Save progress after batch 5
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: results-CulturalStudies
+          path: "*.csv"
+          if-no-files-found: ignore
+          overwrite: true
+          retention-days: 90
+
+      - name: Batch 6
+        shell: pwsh
+        timeout-minutes: 45
+        continue-on-error: true
+        env:
+          EMAIL_FOR_API: ${{ secrets.EMAIL_FOR_API }}
+        run: .\run_dept.ps1 -Department "Cultural Studies" -WorkDir "$env:GITHUB_WORKSPACE" -EmailForAPI "$env:EMAIL_FOR_API"
+
+      - name: Final save
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: results-CulturalStudies
+          path: "*.csv"
+          if-no-files-found: ignore
+          overwrite: true
           retention-days: 90
 
   gender-studies:
     name: Gender Studies
     runs-on: windows-latest
-    timeout-minutes: 360
+    timeout-minutes: 355
     if: ${{ github.event.inputs.department == '' || github.event.inputs.department == 'Gender Studies' }}
     steps:
       - uses: actions/checkout@v4
-      - name: Run
+
+      - name: Batch 1 (Phases 1-3 + start Phase 4)
         shell: pwsh
+        timeout-minutes: 90
+        continue-on-error: true
         env:
           EMAIL_FOR_API: ${{ secrets.EMAIL_FOR_API }}
         run: .\run_dept.ps1 -Department "Gender Studies" -WorkDir "$env:GITHUB_WORKSPACE" -EmailForAPI "$env:EMAIL_FOR_API"
-      - name: Upload results
+
+      - name: Save progress after batch 1
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: results-GenderStudies
           path: "*.csv"
           if-no-files-found: ignore
+          overwrite: true
+          retention-days: 90
+
+      - name: Batch 2
+        shell: pwsh
+        timeout-minutes: 50
+        continue-on-error: true
+        env:
+          EMAIL_FOR_API: ${{ secrets.EMAIL_FOR_API }}
+        run: .\run_dept.ps1 -Department "Gender Studies" -WorkDir "$env:GITHUB_WORKSPACE" -EmailForAPI "$env:EMAIL_FOR_API"
+
+      - name: Save progress after batch 2
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: results-GenderStudies
+          path: "*.csv"
+          if-no-files-found: ignore
+          overwrite: true
+          retention-days: 90
+
+      - name: Batch 3
+        shell: pwsh
+        timeout-minutes: 50
+        continue-on-error: true
+        env:
+          EMAIL_FOR_API: ${{ secrets.EMAIL_FOR_API }}
+        run: .\run_dept.ps1 -Department "Gender Studies" -WorkDir "$env:GITHUB_WORKSPACE" -EmailForAPI "$env:EMAIL_FOR_API"
+
+      - name: Save progress after batch 3
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: results-GenderStudies
+          path: "*.csv"
+          if-no-files-found: ignore
+          overwrite: true
+          retention-days: 90
+
+      - name: Batch 4
+        shell: pwsh
+        timeout-minutes: 50
+        continue-on-error: true
+        env:
+          EMAIL_FOR_API: ${{ secrets.EMAIL_FOR_API }}
+        run: .\run_dept.ps1 -Department "Gender Studies" -WorkDir "$env:GITHUB_WORKSPACE" -EmailForAPI "$env:EMAIL_FOR_API"
+
+      - name: Save progress after batch 4
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: results-GenderStudies
+          path: "*.csv"
+          if-no-files-found: ignore
+          overwrite: true
+          retention-days: 90
+
+      - name: Batch 5
+        shell: pwsh
+        timeout-minutes: 50
+        continue-on-error: true
+        env:
+          EMAIL_FOR_API: ${{ secrets.EMAIL_FOR_API }}
+        run: .\run_dept.ps1 -Department "Gender Studies" -WorkDir "$env:GITHUB_WORKSPACE" -EmailForAPI "$env:EMAIL_FOR_API"
+
+      - name: Save progress after batch 5
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: results-GenderStudies
+          path: "*.csv"
+          if-no-files-found: ignore
+          overwrite: true
+          retention-days: 90
+
+      - name: Batch 6
+        shell: pwsh
+        timeout-minutes: 45
+        continue-on-error: true
+        env:
+          EMAIL_FOR_API: ${{ secrets.EMAIL_FOR_API }}
+        run: .\run_dept.ps1 -Department "Gender Studies" -WorkDir "$env:GITHUB_WORKSPACE" -EmailForAPI "$env:EMAIL_FOR_API"
+
+      - name: Final save
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: results-GenderStudies
+          path: "*.csv"
+          if-no-files-found: ignore
+          overwrite: true
           retention-days: 90

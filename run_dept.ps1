@@ -45,6 +45,7 @@ $withEmailCsv = "$WorkDir\SOP_With_Emails.csv"
 $noEmailCsv   = "$WorkDir\SOP_No_Email.csv"
 $ckFile       = "$WorkDir\SOP_CK_${sfSafe}.csv"
 $cursorFile   = "$WorkDir\SOP_CK_${sfSafe}_cursor.txt"
+$p3CacheFile  = "$WorkDir\SOP_P3_${sfSafe}.csv"   # Phase 3 cache for resume
 
 $hardSciList = @("medicine","biology","chemistry","physics","mathematics",
                  "computer science","engineering","neuroscience","genomics",
@@ -292,211 +293,264 @@ Write-Host "  S2S - Department Runner: $Department" -ForegroundColor Cyan
 Write-Host "============================================" -ForegroundColor Cyan
 $start = Get-Date
 
-# PHASE 1 - Query Authors API
-Write-Host "  [Phase 1] Querying authors from OpenAlex..." -ForegroundColor Cyan
-$authorData = @{}
-$cursor = "*"; $pageCount = 0
+# =============================================================================
+# RESUME CHECK: If Phase 3 cache exists, skip Phases 1-3 entirely
+# =============================================================================
+if (Test-Path $p3CacheFile) {
+    Write-Host ""
+    Write-Host "  [RESUME] Phase 3 cache found - skipping Phases 1-3" -ForegroundColor Yellow
+    $rows = @(Import-Csv $p3CacheFile)
+    Write-Host "  Loaded $($rows.Count) authors from cache" -ForegroundColor Green
 
-if ((Test-Path $ckFile) -and (Test-Path $cursorFile)) {
-    foreach ($r in (Import-Csv $ckFile)) {
-        $authorData[$r.Id] = @{
-            Id=$r.Id; DisplayName=$r.DisplayName; ORCID=$r.ORCID
-            Institution=$r.Institution; Field=$Department; Topics=$r.Topics
-            WorksCount=[int]$r.WorksCount; CitedBy=[int]$r.CitedBy
-            HasAcademicBook=$false; HasTradeBook=$false
-            AcademicBooks=[System.Collections.ArrayList]::new()
-        }
-    }
-    $cursor = (Get-Content $cursorFile -Raw).Trim()
-    Write-Host "  Resuming from checkpoint: $($authorData.Count) authors" -ForegroundColor Yellow
-}
+} else {
+    # =============================================================================
+    # PHASE 1 - Query Works API to collect author IDs
+    # =============================================================================
+    Write-Host "  [Phase 1] Querying authors from OpenAlex..." -ForegroundColor Cyan
+    $authorData = @{}
+    $cursor = "*"; $pageCount = 0
 
-# Phase 1: scan highly-cited works to get author IDs
-$authorFieldMap = @{}
-$worksScanned = 0
-
-while ($true) {
-    $citFilter = if ($minCitations -gt 0) { ",cited_by_count:>$minCitations" } else { "" }
-    $url = "https://api.openalex.org/works?" +
-           "filter=institutions.country_code:US,primary_topic.subfield.id:$sfId$citFilter" +
-           $amp + "sort=cited_by_count:desc" +
-           $amp + "per_page=200" +
-           $amp + "cursor=" + [uri]::EscapeDataString($cursor) +
-           $amp + "select=id,authorships"
-    $data = Invoke-OA $url
-    Start-Sleep -Milliseconds $DelayMs
-    if (-not $data -or -not $data.results -or $data.results.Count -eq 0) { break }
-    if ($pageCount -ge $maxScanPages) { Write-Host "    [Page cap $maxScanPages reached]" -ForegroundColor DarkYellow; break }
-
-    foreach ($work in $data.results) {
-        foreach ($auth in $work.authorships) {
-            if (-not $auth.author -or -not $auth.author.id) { continue }
-            $hasUS = $false
-            foreach ($inst in $auth.institutions) {
-                if ($inst.country_code -eq "US" -and $inst.type -in @("education","nonprofit")) { $hasUS = $true; break }
-            }
-            if (-not $hasUS) { continue }
-            $aId = $auth.author.id -replace "https://openalex.org/",""
-            if (-not $authorFieldMap.ContainsKey($aId)) { $authorFieldMap[$aId] = $Department }
-        }
-    }
-    $worksScanned += $data.results.Count
-    $pageCount++
-    Write-Host "    -> page $pageCount | $worksScanned works | $($authorFieldMap.Count) authors" -ForegroundColor DarkGray
-
-    if ($pageCount % 5 -eq 0) {
-        $authorFieldMap.Keys | ForEach-Object { [PSCustomObject]@{ AuthorId=$_; Field=$authorFieldMap[$_] } } |
-            Export-Csv -Path $ckFile -NoTypeInformation -Encoding UTF8
-        Set-Content -Path $cursorFile -Value $cursor -Encoding UTF8
-        Write-Host "    [CHECKPOINT saved]" -ForegroundColor DarkGreen
-    }
-    if ($data.meta -and $data.meta.next_cursor -and $data.meta.next_cursor -ne $cursor) { $cursor = $data.meta.next_cursor } else { break }
-    if ($data.results.Count -lt 200) { break }
-}
-if (Test-Path $ckFile)    { Remove-Item $ckFile    -Force }
-if (Test-Path $cursorFile){ Remove-Item $cursorFile -Force }
-Write-Host "  [Phase 1] DONE: $worksScanned works -> $($authorFieldMap.Count) author IDs" -ForegroundColor Green
-
-if ($authorFieldMap.Count -eq 0) { Write-Host "No authors found - check network/API." -ForegroundColor Red; exit 1 }
-
-# Phase 2a: Enrich authors
-Write-Host "  [Phase 2a] Enriching authors..." -ForegroundColor Cyan
-$chunks = Split-Chunks @($authorFieldMap.Keys) 50
-$cc = 0
-foreach ($chunk in $chunks) {
-    $cc++
-    $url = "https://api.openalex.org/authors?filter=openalex_id:" + ($chunk -join "|") +
-           $amp + "select=id,display_name,ids,last_known_institutions,works_count,cited_by_count,x_concepts" +
-           $amp + "per_page=50"
-    $resp = Invoke-OA $url
-    Start-Sleep -Milliseconds $DelayMs
-    if ($resp -and $resp.results) {
-        foreach ($a in $resp.results) {
-            $aShort = $a.id -replace "https://openalex.org/",""
-            if ($a.works_count -lt $MinWorksCount -or $a.cited_by_count -lt $MinCitedBy) { continue }
-            $usInst = $null
-            if ($a.last_known_institutions) { foreach ($inst in $a.last_known_institutions) { if ($inst.country_code -eq "US") { $usInst = $inst; break } } }
-            if (-not $usInst) { continue }
-            $instLower = $usInst.display_name.ToLower()
-            $isBadInst = $false
-            foreach ($bk in $badInstKeywords) { if ($instLower -like "*$bk*") { $isBadInst = $true; break } }
-            if ($isBadInst) { continue }
-            $topics = if ($a.x_concepts) { ($a.x_concepts | Select-Object -First 4 | ForEach-Object { $_.display_name }) -join "; " } else { "" }
-            $isHard = $false
-            foreach ($topicPart in ($topics -split ";")) {
-                $t = $topicPart.Trim().ToLower()
-                foreach ($hs in $hardSciList) { if ($t -like "*$hs*") { $isHard = $true; break } }
-                if ($isHard) { break }
-            }
-            if ($isHard) { continue }
-            $authorData[$aShort] = @{
-                Id=$aShort; DisplayName=$a.display_name
-                ORCID=if ($a.ids -and $a.ids.orcid) { $a.ids.orcid } else { "" }
-                Institution=$usInst.display_name; Field=$Department; Topics=$topics
-                WorksCount=$a.works_count; CitedBy=$a.cited_by_count
+    if ((Test-Path $ckFile) -and (Test-Path $cursorFile)) {
+        foreach ($r in (Import-Csv $ckFile)) {
+            $authorData[$r.Id] = @{
+                Id=$r.Id; DisplayName=$r.DisplayName; ORCID=$r.ORCID
+                Institution=$r.Institution; Field=$Department; Topics=$r.Topics
+                WorksCount=[int]$r.WorksCount; CitedBy=[int]$r.CitedBy
                 HasAcademicBook=$false; HasTradeBook=$false
                 AcademicBooks=[System.Collections.ArrayList]::new()
             }
         }
+        $cursor = (Get-Content $cursorFile -Raw).Trim()
+        Write-Host "  Resuming from checkpoint: $($authorData.Count) authors" -ForegroundColor Yellow
     }
-    if ($cc % 20 -eq 0) { Write-Host "    [$cc/$($chunks.Count)] Qualified: $($authorData.Count)" }
-}
-Write-Host "  [Phase 2a] $($authorData.Count) authors qualified" -ForegroundColor Green
 
-if ($authorData.Count -eq 0) { Write-Host "No qualified authors found." -ForegroundColor Red; exit 1 }
+    $authorFieldMap = @{}
+    $worksScanned = 0
 
-# Phase 2b: Book classification
-Write-Host "  [Phase 2b] Classifying books (20s cooldown)..." -ForegroundColor Cyan
-Start-Sleep -Seconds 20
+    while ($true) {
+        $citFilter = if ($minCitations -gt 0) { ",cited_by_count:>$minCitations" } else { "" }
+        $url = "https://api.openalex.org/works?" +
+               "filter=institutions.country_code:US,primary_topic.subfield.id:$sfId$citFilter" +
+               $amp + "sort=cited_by_count:desc" +
+               $amp + "per_page=200" +
+               $amp + "cursor=" + [uri]::EscapeDataString($cursor) +
+               $amp + "select=id,authorships"
+        $data = Invoke-OA $url
+        Start-Sleep -Milliseconds $DelayMs
+        if (-not $data -or -not $data.results -or $data.results.Count -eq 0) { break }
+        if ($pageCount -ge $maxScanPages) { Write-Host "    [Page cap $maxScanPages reached]" -ForegroundColor DarkYellow; break }
 
-$bookChunks = Split-Chunks @($authorData.Keys) $BookBatch
-$bc = 0
-foreach ($chunk in $bookChunks) {
-    $bc++
-    $url  = "https://api.openalex.org/works?filter=author.id:" + ($chunk -join "|") + ",type:book|book-chapter" +
-            $amp + "select=id,title,publication_year,primary_location,authorships" + $amp + "per_page=100"
-    $resp = Invoke-OA $url
-    Start-Sleep -Milliseconds 1200
-    if (-not $resp -or -not $resp.results) { continue }
-    foreach ($book in $resp.results) {
-        $pubName = ""
-        if ($book.primary_location -and $book.primary_location.source) {
-            $src = $book.primary_location.source
-            $pubName = if ($src.host_organization_name) { $src.host_organization_name } elseif ($src.display_name) { $src.display_name } else { "" }
-        }
-        $pubLower = $pubName.ToLower(); $isTrade = $false
-        foreach ($tp in $tradePublishers) { if ($pubLower -like "*$tp*") { $isTrade = $true; break } }
-        foreach ($auth in $book.authorships) {
-            if (-not $auth.author -or -not $auth.author.id) { continue }
-            $aShort = $auth.author.id -replace "https://openalex.org/",""
-            if (-not $authorData.ContainsKey($aShort)) { continue }
-            if ($isTrade) { $authorData[$aShort].HasTradeBook = $true }
-            else {
-                $authorData[$aShort].HasAcademicBook = $true
-                $label = if ($book.title -and $book.publication_year) { "$($book.title) ($($book.publication_year))" } else { $book.title }
-                if ($label -and $authorData[$aShort].AcademicBooks -notcontains $label) { [void]$authorData[$aShort].AcademicBooks.Add($label) }
+        foreach ($work in $data.results) {
+            foreach ($auth in $work.authorships) {
+                if (-not $auth.author -or -not $auth.author.id) { continue }
+                $hasUS = $false
+                foreach ($inst in $auth.institutions) {
+                    if ($inst.country_code -eq "US" -and $inst.type -in @("education","nonprofit")) { $hasUS = $true; break }
+                }
+                if (-not $hasUS) { continue }
+                $aId = $auth.author.id -replace "https://openalex.org/",""
+                if (-not $authorFieldMap.ContainsKey($aId)) { $authorFieldMap[$aId] = $Department }
             }
         }
-    }
-    if ($bc % 50 -eq 0) { Write-Host "    [$bc/$($bookChunks.Count)] chunks done" -ForegroundColor DarkGray }
-}
-$withAcad = ($authorData.Values | Where-Object { $_.HasAcademicBook -and -not $_.HasTradeBook }).Count
-$noBooks  = ($authorData.Values | Where-Object { -not $_.HasAcademicBook -and -not $_.HasTradeBook }).Count
-$trade    = ($authorData.Values | Where-Object { $_.HasTradeBook }).Count
-Write-Host "  [Phase 2] Academic books: $withAcad | No books yet: $noBooks (prime targets) | Trade excluded: $trade" -ForegroundColor Green
+        $worksScanned += $data.results.Count
+        $pageCount++
+        Write-Host "    -> page $pageCount | $worksScanned works | $($authorFieldMap.Count) authors" -ForegroundColor DarkGray
 
-# PHASE 3 - Domain resolution
-Write-Host "  [Phase 3] Resolving institution domains..." -ForegroundColor Cyan
-$uniqueInsts = @($authorData.Values | Where-Object { -not $_.HasTradeBook } | ForEach-Object { $_.Institution } | Select-Object -Unique | Where-Object { $_ })
-$domainCache = @{}
-foreach ($instName in $uniqueInsts) {
-    try {
-        $r = Invoke-RestMethod -Uri "https://api.ror.org/organizations?affiliation=$([uri]::EscapeDataString($instName))" -Method Get -TimeoutSec 15 -ErrorAction Stop
-        if ($r.items -and $r.items.Count -gt 0) {
-            $org = ($r.items | Sort-Object score -Descending | Select-Object -First 1).organization
-            if ($org -and $org.links -and $org.links.Count -gt 0) {
-                $link = $org.links | Where-Object { $_.type -eq "website" } | Select-Object -First 1
-                if (-not $link) { $link = $org.links[0] }
-                $siteUrl = if ($link -is [string]) { $link } elseif ($link.value) { $link.value } else { "" }
-                $domain = ($siteUrl -replace "https?://(www\.)?","" -replace "/.*","").Trim().ToLower()
-                if ($domain) { $domainCache[$instName] = $domain }
+        if ($pageCount % 5 -eq 0) {
+            $authorFieldMap.Keys | ForEach-Object { [PSCustomObject]@{ AuthorId=$_; Field=$authorFieldMap[$_] } } |
+                Export-Csv -Path $ckFile -NoTypeInformation -Encoding UTF8
+            Set-Content -Path $cursorFile -Value $cursor -Encoding UTF8
+            Write-Host "    [CHECKPOINT saved]" -ForegroundColor DarkGreen
+        }
+        if ($data.meta -and $data.meta.next_cursor -and $data.meta.next_cursor -ne $cursor) { $cursor = $data.meta.next_cursor } else { break }
+        if ($data.results.Count -lt 200) { break }
+    }
+    if (Test-Path $ckFile)    { Remove-Item $ckFile    -Force }
+    if (Test-Path $cursorFile){ Remove-Item $cursorFile -Force }
+    Write-Host "  [Phase 1] DONE: $worksScanned works -> $($authorFieldMap.Count) author IDs" -ForegroundColor Green
+
+    if ($authorFieldMap.Count -eq 0) { Write-Host "No authors found - check network/API." -ForegroundColor Red; exit 1 }
+
+    # =============================================================================
+    # Phase 2a: Enrich authors
+    # =============================================================================
+    Write-Host "  [Phase 2a] Enriching authors..." -ForegroundColor Cyan
+    $authorData = @{}
+    $chunks = Split-Chunks @($authorFieldMap.Keys) 50
+    $cc = 0
+    foreach ($chunk in $chunks) {
+        $cc++
+        $url = "https://api.openalex.org/authors?filter=openalex_id:" + ($chunk -join "|") +
+               $amp + "select=id,display_name,ids,last_known_institutions,works_count,cited_by_count,x_concepts" +
+               $amp + "per_page=50"
+        $resp = Invoke-OA $url
+        Start-Sleep -Milliseconds $DelayMs
+        if ($resp -and $resp.results) {
+            foreach ($a in $resp.results) {
+                $aShort = $a.id -replace "https://openalex.org/",""
+                if ($a.works_count -lt $MinWorksCount -or $a.cited_by_count -lt $MinCitedBy) { continue }
+                $usInst = $null
+                if ($a.last_known_institutions) { foreach ($inst in $a.last_known_institutions) { if ($inst.country_code -eq "US") { $usInst = $inst; break } } }
+                if (-not $usInst) { continue }
+                $instLower = $usInst.display_name.ToLower()
+                $isBadInst = $false
+                foreach ($bk in $badInstKeywords) { if ($instLower -like "*$bk*") { $isBadInst = $true; break } }
+                if ($isBadInst) { continue }
+                $topics = if ($a.x_concepts) { ($a.x_concepts | Select-Object -First 4 | ForEach-Object { $_.display_name }) -join "; " } else { "" }
+                $isHard = $false
+                foreach ($topicPart in ($topics -split ";")) {
+                    $t = $topicPart.Trim().ToLower()
+                    foreach ($hs in $hardSciList) { if ($t -like "*$hs*") { $isHard = $true; break } }
+                    if ($isHard) { break }
+                }
+                if ($isHard) { continue }
+                $authorData[$aShort] = @{
+                    Id=$aShort; DisplayName=$a.display_name
+                    ORCID=if ($a.ids -and $a.ids.orcid) { $a.ids.orcid } else { "" }
+                    Institution=$usInst.display_name; Field=$Department; Topics=$topics
+                    WorksCount=$a.works_count; CitedBy=$a.cited_by_count
+                    HasAcademicBook=$false; HasTradeBook=$false
+                    AcademicBooks=[System.Collections.ArrayList]::new()
+                }
             }
         }
-    } catch {}
-    if (-not $domainCache.ContainsKey($instName)) { $domainCache[$instName] = "" }
-    Start-Sleep -Milliseconds 200
-}
-Write-Host "  [Phase 3] $($domainCache.Values | Where-Object { $_ }) domains resolved" -ForegroundColor Green
-
-# Build rows
-$rows = @($authorData.Values | Where-Object { -not $_.HasTradeBook } | ForEach-Object {
-    $d = $_
-    [PSCustomObject]@{
-        Name               = $d.DisplayName
-        Department         = $d.Field
-        Institution        = $d.Institution
-        Institution_Domain = if ($domainCache.ContainsKey($d.Institution)) { $domainCache[$d.Institution] } else { "" }
-        ORCID              = $d.ORCID
-        Research_Topics    = $d.Topics
-        Book_Status        = if ($d.HasAcademicBook) { "Academic books" } else { "No books yet" }
-        Academic_Books     = if ($d.AcademicBooks.Count -gt 0) { $d.AcademicBooks -join " | " } else { "" }
-        Works_Count        = $d.WorksCount
-        Cited_By_Count     = $d.CitedBy
-        OpenAlex_ID        = "https://openalex.org/" + $d.Id
-        OpenAlex_Profile   = "https://openalex.org/" + $d.Id
+        if ($cc % 20 -eq 0) { Write-Host "    [$cc/$($chunks.Count)] Qualified: $($authorData.Count)" }
     }
-} | Sort-Object Cited_By_Count -Descending)
+    Write-Host "  [Phase 2a] $($authorData.Count) authors qualified" -ForegroundColor Green
 
-Write-Host "  $($rows.Count) authors qualify for email enrichment" -ForegroundColor Green
+    if ($authorData.Count -eq 0) { Write-Host "No qualified authors found." -ForegroundColor Red; exit 1 }
 
-# PHASE 4 - Email enrichment
+    # =============================================================================
+    # Phase 2b: Book classification
+    # =============================================================================
+    Write-Host "  [Phase 2b] Classifying books (20s cooldown)..." -ForegroundColor Cyan
+    Start-Sleep -Seconds 20
+
+    $bookChunks = Split-Chunks @($authorData.Keys) $BookBatch
+    $bc = 0
+    foreach ($chunk in $bookChunks) {
+        $bc++
+        $url  = "https://api.openalex.org/works?filter=author.id:" + ($chunk -join "|") + ",type:book|book-chapter" +
+                $amp + "select=id,title,publication_year,primary_location,authorships" + $amp + "per_page=100"
+        $resp = Invoke-OA $url
+        Start-Sleep -Milliseconds 1200
+        if (-not $resp -or -not $resp.results) { continue }
+        foreach ($book in $resp.results) {
+            $pubName = ""
+            if ($book.primary_location -and $book.primary_location.source) {
+                $src = $book.primary_location.source
+                $pubName = if ($src.host_organization_name) { $src.host_organization_name } elseif ($src.display_name) { $src.display_name } else { "" }
+            }
+            $pubLower = $pubName.ToLower(); $isTrade = $false
+            foreach ($tp in $tradePublishers) { if ($pubLower -like "*$tp*") { $isTrade = $true; break } }
+            foreach ($auth in $book.authorships) {
+                if (-not $auth.author -or -not $auth.author.id) { continue }
+                $aShort = $auth.author.id -replace "https://openalex.org/",""
+                if (-not $authorData.ContainsKey($aShort)) { continue }
+                if ($isTrade) { $authorData[$aShort].HasTradeBook = $true }
+                else {
+                    $authorData[$aShort].HasAcademicBook = $true
+                    $label = if ($book.title -and $book.publication_year) { "$($book.title) ($($book.publication_year))" } else { $book.title }
+                    if ($label -and $authorData[$aShort].AcademicBooks -notcontains $label) { [void]$authorData[$aShort].AcademicBooks.Add($label) }
+                }
+            }
+        }
+        if ($bc % 50 -eq 0) { Write-Host "    [$bc/$($bookChunks.Count)] chunks done" -ForegroundColor DarkGray }
+    }
+    $withAcad = ($authorData.Values | Where-Object { $_.HasAcademicBook -and -not $_.HasTradeBook }).Count
+    $noBooks  = ($authorData.Values | Where-Object { -not $_.HasAcademicBook -and -not $_.HasTradeBook }).Count
+    $trade    = ($authorData.Values | Where-Object { $_.HasTradeBook }).Count
+    Write-Host "  [Phase 2] Academic books: $withAcad | No books yet: $noBooks (prime targets) | Trade excluded: $trade" -ForegroundColor Green
+
+    # =============================================================================
+    # PHASE 3 - Domain resolution
+    # =============================================================================
+    Write-Host "  [Phase 3] Resolving institution domains..." -ForegroundColor Cyan
+    $uniqueInsts = @($authorData.Values | Where-Object { -not $_.HasTradeBook } | ForEach-Object { $_.Institution } | Select-Object -Unique | Where-Object { $_ })
+    $domainCache = @{}
+    foreach ($instName in $uniqueInsts) {
+        try {
+            $r = Invoke-RestMethod -Uri "https://api.ror.org/organizations?affiliation=$([uri]::EscapeDataString($instName))" -Method Get -TimeoutSec 15 -ErrorAction Stop
+            if ($r.items -and $r.items.Count -gt 0) {
+                $org = ($r.items | Sort-Object score -Descending | Select-Object -First 1).organization
+                if ($org -and $org.links -and $org.links.Count -gt 0) {
+                    $link = $org.links | Where-Object { $_.type -eq "website" } | Select-Object -First 1
+                    if (-not $link) { $link = $org.links[0] }
+                    $siteUrl = if ($link -is [string]) { $link } elseif ($link.value) { $link.value } else { "" }
+                    $domain = ($siteUrl -replace "https?://(www\.)?","" -replace "/.*","").Trim().ToLower()
+                    if ($domain) { $domainCache[$instName] = $domain }
+                }
+            }
+        } catch {}
+        if (-not $domainCache.ContainsKey($instName)) { $domainCache[$instName] = "" }
+        Start-Sleep -Milliseconds 200
+    }
+    Write-Host "  [Phase 3] $($domainCache.Values | Where-Object { $_ }) domains resolved" -ForegroundColor Green
+
+    # Build rows (all authors without a trade book)
+    $rows = @($authorData.Values | Where-Object { -not $_.HasTradeBook } | ForEach-Object {
+        $d = $_
+        [PSCustomObject]@{
+            Name               = $d.DisplayName
+            Department         = $d.Field
+            Institution        = $d.Institution
+            Institution_Domain = if ($domainCache.ContainsKey($d.Institution)) { $domainCache[$d.Institution] } else { "" }
+            ORCID              = $d.ORCID
+            Research_Topics    = $d.Topics
+            Book_Status        = if ($d.HasAcademicBook) { "Academic books" } else { "No books yet" }
+            Academic_Books     = if ($d.AcademicBooks.Count -gt 0) { $d.AcademicBooks -join " | " } else { "" }
+            Works_Count        = $d.WorksCount
+            Cited_By_Count     = $d.CitedBy
+            OpenAlex_ID        = "https://openalex.org/" + $d.Id
+            OpenAlex_Profile   = "https://openalex.org/" + $d.Id
+        }
+    } | Sort-Object Cited_By_Count -Descending)
+
+    Write-Host "  $($rows.Count) authors qualify for email enrichment" -ForegroundColor Green
+
+    # Save Phase 3 cache so future batches skip straight to Phase 4
+    $rows | Export-Csv -Path $p3CacheFile -NoTypeInformation -Encoding UTF8
+    Write-Host "  [Phase 3 cache saved: $p3CacheFile]" -ForegroundColor DarkGreen
+
+} # end if/else p3CacheFile
+
+# =============================================================================
+# PHASE 4 - Email enrichment (runs every batch, resumes from where it left off)
+# =============================================================================
 Write-Host "  [Phase 4] Email enrichment..." -ForegroundColor Cyan
+
+# Load already-processed author IDs from any previous runs/batches
+$doneIds = @{}
+foreach ($csvPath in @($withEmailCsv, $noEmailCsv)) {
+    if (Test-Path $csvPath) {
+        foreach ($r in (Import-Csv $csvPath)) {
+            if ($r.OpenAlex_ID) { $doneIds[$r.OpenAlex_ID] = $true }
+        }
+    }
+}
+
+if ($doneIds.Count -gt 0) {
+    $remaining = $rows.Count - $doneIds.Count
+    Write-Host "  Resuming: $($doneIds.Count) already done, $remaining remaining" -ForegroundColor Yellow
+}
+
+# Build the list of authors still needing processing
+$toProcess = @($rows | Where-Object { -not $doneIds.ContainsKey($_.OpenAlex_ID) })
+
+if ($toProcess.Count -eq 0) {
+    Write-Host "  All $($rows.Count) authors already processed - nothing to do!" -ForegroundColor Green
+    $totalMins = [math]::Round(((Get-Date)-$start).TotalMinutes,1)
+    Write-Host "  [Completed in ${totalMins}min]" -ForegroundColor Cyan
+    exit 0
+}
+
+Write-Host "  Processing $($toProcess.Count) authors this batch..." -ForegroundColor Cyan
 Write-Host ""
 $counter=0; $matched=0
 
-foreach ($row in $rows) {
+foreach ($row in $toProcess) {
     $counter++
-    Write-Host "[$counter/$($rows.Count)] $($row.Name) @ $($row.Institution)" -ForegroundColor White
+    Write-Host "[$counter/$($toProcess.Count)] $($row.Name) @ $($row.Institution)" -ForegroundColor White
     $res = Find-Email $row
 
     if ($res.email) { $matched++; Write-Host "  => FOUND: $($res.email) [$($res.source)]" -ForegroundColor Green }
@@ -525,22 +579,29 @@ foreach ($row in $rows) {
     else            { $outRow | Export-Csv -Path $noEmailCsv   -Append -NoTypeInformation -Encoding UTF8 }
 
     if ($counter % 5 -eq 0) {
-        $pct = [math]::Round($matched/[math]::Max($counter,1)*100)
+        $pct  = [math]::Round($matched/[math]::Max($counter,1)*100)
         $mins = [math]::Round(((Get-Date)-$start).TotalMinutes,1)
+        $totalDoneNow = $doneIds.Count + $counter
         Write-Host ""
-        Write-Host "  --- [$mins min] $counter/$($rows.Count) | $matched emails ($pct%) ---" -ForegroundColor Cyan
+        Write-Host "  --- [$mins min] batch: $counter/$($toProcess.Count) | total: $totalDoneNow/$($rows.Count) | $matched emails ($pct%) ---" -ForegroundColor Cyan
         Write-Host ""
     }
     Start-Sleep -Milliseconds $EmailDelayMs
 }
 
-$totalMins = [math]::Round(((Get-Date)-$start).TotalMinutes,1)
-$pct = [math]::Round($matched/[math]::Max($counter,1)*100)
+$totalMins  = [math]::Round(((Get-Date)-$start).TotalMinutes,1)
+$pct        = [math]::Round($matched/[math]::Max($counter,1)*100)
+$grandTotal = $doneIds.Count + $counter
+
 Write-Host ""
 Write-Host "============================================" -ForegroundColor Cyan
-Write-Host "  $Department COMPLETE" -ForegroundColor Cyan
+Write-Host "  $Department - Batch Complete" -ForegroundColor Cyan
 Write-Host "============================================" -ForegroundColor Cyan
-Write-Host "Runtime : $totalMins min"
-Write-Host "Authors : $counter"
-Write-Host "Emails  : $matched ($pct%)" -ForegroundColor Green
-Write-Host "Output  : $withEmailCsv" -ForegroundColor Green
+Write-Host "Runtime (this batch) : $totalMins min"
+Write-Host "Processed this batch : $counter"
+Write-Host "Emails this batch    : $matched ($pct%)" -ForegroundColor Green
+Write-Host "Grand total          : $grandTotal / $($rows.Count)" -ForegroundColor Green
+if ($grandTotal -ge $rows.Count) {
+    Write-Host "  *** DEPARTMENT FULLY COMPLETE ***" -ForegroundColor Green
+}
+Write-Host "Output: $withEmailCsv" -ForegroundColor Green
