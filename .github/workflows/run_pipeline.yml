@@ -4,257 +4,203 @@ on:
   workflow_dispatch:
     inputs:
       department:
-        description: 'Department to run (leave blank for all)'
+        description: 'Single department (leave blank for all)'
         required: false
         default: ''
   schedule:
-    # Every Sunday at 2 AM UTC
     - cron: '0 2 * * 0'
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
+# Each department runs independently - one timeout never kills the others
 jobs:
+
   anthropology:
     name: Anthropology
     runs-on: windows-latest
     timeout-minutes: 360
+    if: ${{ github.event.inputs.department == '' || github.event.inputs.department == 'Anthropology' }}
     steps:
       - uses: actions/checkout@v4
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Run Anthropology
-        if: ${{ github.event.inputs.department == '' || github.event.inputs.department == 'Anthropology' }}
+      - name: Run
         shell: pwsh
         env:
           EMAIL_FOR_API: ${{ secrets.EMAIL_FOR_API }}
-        run: |
-          .\run_dept.ps1 -Department Anthropology -WorkDir "$env:GITHUB_WORKSPACE" -EmailForAPI "$env:EMAIL_FOR_API"
-
-      - name: Save results
+        run: .\run_dept.ps1 -Department Anthropology -WorkDir "$env:GITHUB_WORKSPACE" -EmailForAPI "$env:EMAIL_FOR_API" -MinCitationsWorks 50
+      - name: Upload results
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: results-anthropology
-          path: |
-            SOP_With_Emails.csv
-            SOP_No_Email.csv
+          name: results-Anthropology
+          path: "*.csv"
           if-no-files-found: ignore
+          retention-days: 90
 
   history:
     name: History
     runs-on: windows-latest
     timeout-minutes: 360
-    needs: anthropology
+    if: ${{ github.event.inputs.department == '' || github.event.inputs.department == 'History' }}
     steps:
       - uses: actions/checkout@v4
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Download previous results
-        uses: actions/download-artifact@v4
-        with:
-          name: results-anthropology
-        continue-on-error: true
-
-      - name: Run History
-        if: ${{ github.event.inputs.department == '' || github.event.inputs.department == 'History' }}
+      - name: Run
         shell: pwsh
         env:
           EMAIL_FOR_API: ${{ secrets.EMAIL_FOR_API }}
-        run: |
-          .\run_dept.ps1 -Department History -WorkDir "$env:GITHUB_WORKSPACE" -EmailForAPI "$env:EMAIL_FOR_API"
-
-      - name: Save results
+        run: .\run_dept.ps1 -Department History -WorkDir "$env:GITHUB_WORKSPACE" -EmailForAPI "$env:EMAIL_FOR_API"
+      - name: Upload results
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: results-history
-          path: |
-            SOP_With_Emails.csv
-            SOP_No_Email.csv
+          name: results-History
+          path: "*.csv"
           if-no-files-found: ignore
+          retention-days: 90
 
   sociology:
     name: Sociology
     runs-on: windows-latest
     timeout-minutes: 360
-    needs: history
+    if: ${{ github.event.inputs.department == '' || github.event.inputs.department == 'Sociology' }}
     steps:
       - uses: actions/checkout@v4
-      - name: Download previous results
-        uses: actions/download-artifact@v4
-        with:
-          name: results-history
-        continue-on-error: true
-      - name: Run Sociology
-        if: ${{ github.event.inputs.department == '' || github.event.inputs.department == 'Sociology' }}
+      - name: Run
         shell: pwsh
         env:
           EMAIL_FOR_API: ${{ secrets.EMAIL_FOR_API }}
         run: .\run_dept.ps1 -Department Sociology -WorkDir "$env:GITHUB_WORKSPACE" -EmailForAPI "$env:EMAIL_FOR_API"
-      - name: Save results
+      - name: Upload results
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: results-sociology
+          name: results-Sociology
           path: "*.csv"
           if-no-files-found: ignore
+          retention-days: 90
 
   economics:
     name: Economics
     runs-on: windows-latest
     timeout-minutes: 360
-    needs: sociology
+    if: ${{ github.event.inputs.department == '' || github.event.inputs.department == 'Economics' }}
     steps:
       - uses: actions/checkout@v4
-      - name: Download previous results
-        uses: actions/download-artifact@v4
-        with:
-          name: results-sociology
-        continue-on-error: true
-      - name: Run Economics
-        if: ${{ github.event.inputs.department == '' || github.event.inputs.department == 'Economics' }}
+      - name: Run
         shell: pwsh
         env:
           EMAIL_FOR_API: ${{ secrets.EMAIL_FOR_API }}
         run: .\run_dept.ps1 -Department Economics -WorkDir "$env:GITHUB_WORKSPACE" -EmailForAPI "$env:EMAIL_FOR_API"
-      - name: Save results
+      - name: Upload results
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: results-economics
+          name: results-Economics
           path: "*.csv"
           if-no-files-found: ignore
+          retention-days: 90
 
   geography:
     name: Geography
     runs-on: windows-latest
     timeout-minutes: 360
-    needs: economics
+    if: ${{ github.event.inputs.department == '' || github.event.inputs.department == 'Geography' }}
     steps:
       - uses: actions/checkout@v4
-      - name: Download previous results
-        uses: actions/download-artifact@v4
-        with:
-          name: results-economics
-        continue-on-error: true
-      - name: Run Geography
-        if: ${{ github.event.inputs.department == '' || github.event.inputs.department == 'Geography' }}
+      - name: Run
         shell: pwsh
         env:
           EMAIL_FOR_API: ${{ secrets.EMAIL_FOR_API }}
         run: .\run_dept.ps1 -Department Geography -WorkDir "$env:GITHUB_WORKSPACE" -EmailForAPI "$env:EMAIL_FOR_API"
-      - name: Save results
+      - name: Upload results
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: results-geography
+          name: results-Geography
           path: "*.csv"
           if-no-files-found: ignore
+          retention-days: 90
 
   literature:
     name: Literature/English
     runs-on: windows-latest
     timeout-minutes: 360
-    needs: geography
+    if: ${{ github.event.inputs.department == '' || github.event.inputs.department == 'Literature/English' }}
     steps:
       - uses: actions/checkout@v4
-      - name: Download previous results
-        uses: actions/download-artifact@v4
-        with:
-          name: results-geography
-        continue-on-error: true
-      - name: Run Literature
-        if: ${{ github.event.inputs.department == '' || github.event.inputs.department == 'Literature/English' }}
+      - name: Run
         shell: pwsh
         env:
           EMAIL_FOR_API: ${{ secrets.EMAIL_FOR_API }}
         run: .\run_dept.ps1 -Department "Literature/English" -WorkDir "$env:GITHUB_WORKSPACE" -EmailForAPI "$env:EMAIL_FOR_API"
-      - name: Save results
+      - name: Upload results
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: results-literature
+          name: results-Literature
           path: "*.csv"
           if-no-files-found: ignore
+          retention-days: 90
 
   communication:
     name: Communication/Media
     runs-on: windows-latest
     timeout-minutes: 360
-    needs: literature
+    if: ${{ github.event.inputs.department == '' || github.event.inputs.department == 'Communication/Media' }}
     steps:
       - uses: actions/checkout@v4
-      - name: Download previous results
-        uses: actions/download-artifact@v4
-        with:
-          name: results-literature
-        continue-on-error: true
-      - name: Run Communication
-        if: ${{ github.event.inputs.department == '' || github.event.inputs.department == 'Communication/Media' }}
+      - name: Run
         shell: pwsh
         env:
           EMAIL_FOR_API: ${{ secrets.EMAIL_FOR_API }}
         run: .\run_dept.ps1 -Department "Communication/Media" -WorkDir "$env:GITHUB_WORKSPACE" -EmailForAPI "$env:EMAIL_FOR_API"
-      - name: Save results
+      - name: Upload results
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: results-communication
+          name: results-Communication
           path: "*.csv"
           if-no-files-found: ignore
+          retention-days: 90
 
   cultural-studies:
     name: Cultural Studies
     runs-on: windows-latest
     timeout-minutes: 360
-    needs: communication
+    if: ${{ github.event.inputs.department == '' || github.event.inputs.department == 'Cultural Studies' }}
     steps:
       - uses: actions/checkout@v4
-      - name: Download previous results
-        uses: actions/download-artifact@v4
-        with:
-          name: results-communication
-        continue-on-error: true
-      - name: Run Cultural Studies
-        if: ${{ github.event.inputs.department == '' || github.event.inputs.department == 'Cultural Studies' }}
+      - name: Run
         shell: pwsh
         env:
           EMAIL_FOR_API: ${{ secrets.EMAIL_FOR_API }}
         run: .\run_dept.ps1 -Department "Cultural Studies" -WorkDir "$env:GITHUB_WORKSPACE" -EmailForAPI "$env:EMAIL_FOR_API"
-      - name: Save results
+      - name: Upload results
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: results-cultural-studies
+          name: results-CulturalStudies
           path: "*.csv"
           if-no-files-found: ignore
+          retention-days: 90
 
   gender-studies:
     name: Gender Studies
     runs-on: windows-latest
     timeout-minutes: 360
-    needs: cultural-studies
+    if: ${{ github.event.inputs.department == '' || github.event.inputs.department == 'Gender Studies' }}
     steps:
       - uses: actions/checkout@v4
-      - name: Download previous results
-        uses: actions/download-artifact@v4
-        with:
-          name: results-cultural-studies
-        continue-on-error: true
-      - name: Run Gender Studies
-        if: ${{ github.event.inputs.department == '' || github.event.inputs.department == 'Gender Studies' }}
+      - name: Run
         shell: pwsh
         env:
           EMAIL_FOR_API: ${{ secrets.EMAIL_FOR_API }}
         run: .\run_dept.ps1 -Department "Gender Studies" -WorkDir "$env:GITHUB_WORKSPACE" -EmailForAPI "$env:EMAIL_FOR_API"
-      - name: Save final results
+      - name: Upload results
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: results-FINAL
+          name: results-GenderStudies
           path: "*.csv"
           if-no-files-found: ignore
           retention-days: 90

@@ -1,13 +1,14 @@
 param(
     [Parameter(Mandatory=$true)]
     [string]$Department,
-    [string]$WorkDir     = "$env:USERPROFILE\Downloads",
-    [string]$EmailForAPI = "pakgeniusatwork@gmail.com",
-    [int]$MinWorksCount  = 3,
-    [int]$MinCitedBy     = 0,
-    [int]$DelayMs        = 500,
-    [int]$BookBatch      = 30,
-    [int]$EmailDelayMs   = 400
+    [string]$WorkDir           = "$env:USERPROFILE\Downloads",
+    [string]$EmailForAPI       = "pakgeniusatwork@gmail.com",
+    [int]$MinWorksCount        = 3,
+    [int]$MinCitedBy           = 0,
+    [int]$DelayMs              = 500,
+    [int]$BookBatch            = 30,
+    [int]$EmailDelayMs         = 400,
+    [int]$MinCitationsWorks    = 0
 )
 
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
@@ -36,9 +37,8 @@ if (-not $subfields.ContainsKey($Department)) {
 $sfId    = $subfields[$Department]
 $sfSafe  = $Department -replace '[^a-zA-Z0-9]','_'
 
-# No citation floor - include anyone who has published in the field
-# Cap at 200 pages (40,000 works) per department to keep runtime sane
-$minCitations = 0
+# Citation floor: 0 for most departments, caller can override (e.g. Anthropology uses 50)
+$minCitations = $MinCitationsWorks
 $maxScanPages = 200
 
 $withEmailCsv = "$WorkDir\SOP_With_Emails.csv"
