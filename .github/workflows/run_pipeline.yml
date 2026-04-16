@@ -15,7 +15,7 @@ jobs:
   anthropology:
     name: Anthropology
     runs-on: windows-latest
-    timeout-minutes: 180
+    timeout-minutes: 360
     steps:
       - uses: actions/checkout@v4
         with:
@@ -42,7 +42,7 @@ jobs:
   history:
     name: History
     runs-on: windows-latest
-    timeout-minutes: 180
+    timeout-minutes: 360
     needs: anthropology
     steps:
       - uses: actions/checkout@v4
@@ -76,7 +76,7 @@ jobs:
   sociology:
     name: Sociology
     runs-on: windows-latest
-    timeout-minutes: 180
+    timeout-minutes: 360
     needs: history
     steps:
       - uses: actions/checkout@v4
@@ -102,7 +102,7 @@ jobs:
   economics:
     name: Economics
     runs-on: windows-latest
-    timeout-minutes: 180
+    timeout-minutes: 360
     needs: sociology
     steps:
       - uses: actions/checkout@v4
@@ -128,7 +128,7 @@ jobs:
   geography:
     name: Geography
     runs-on: windows-latest
-    timeout-minutes: 180
+    timeout-minutes: 360
     needs: economics
     steps:
       - uses: actions/checkout@v4
@@ -154,7 +154,7 @@ jobs:
   literature:
     name: Literature/English
     runs-on: windows-latest
-    timeout-minutes: 180
+    timeout-minutes: 360
     needs: geography
     steps:
       - uses: actions/checkout@v4
@@ -180,7 +180,7 @@ jobs:
   communication:
     name: Communication/Media
     runs-on: windows-latest
-    timeout-minutes: 180
+    timeout-minutes: 360
     needs: literature
     steps:
       - uses: actions/checkout@v4
@@ -206,7 +206,7 @@ jobs:
   cultural-studies:
     name: Cultural Studies
     runs-on: windows-latest
-    timeout-minutes: 180
+    timeout-minutes: 360
     needs: communication
     steps:
       - uses: actions/checkout@v4
@@ -232,7 +232,7 @@ jobs:
   gender-studies:
     name: Gender Studies
     runs-on: windows-latest
-    timeout-minutes: 180
+    timeout-minutes: 360
     needs: cultural-studies
     steps:
       - uses: actions/checkout@v4
