@@ -13,9 +13,10 @@ on:
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
-# Each department runs independently - one timeout never kills the others
-# Each job runs up to 6 batches of Phase 4 with artifact saves in between,
-# so even a timeout only loses the last batch (not hours of work).
+# Each department runs independently.
+# Each job restores its previous artifact at startup (so it resumes across runs),
+# then runs up to 6 batches of Phase 4 with saves in between.
+# The continue_pipeline.yml auto-restarts this workflow if any job timed out.
 jobs:
 
   anthropology:
@@ -25,6 +26,28 @@ jobs:
     if: ${{ github.event.inputs.department == '' || github.event.inputs.department == 'Anthropology' }}
     steps:
       - uses: actions/checkout@v4
+
+      - name: Restore previous progress
+        continue-on-error: true
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          $headers = @{ Authorization = "Bearer $env:GH_TOKEN"; Accept = "application/vnd.github+json" }
+          $resp = Invoke-RestMethod "https://api.github.com/repos/$env:GITHUB_REPOSITORY/actions/artifacts?name=results-Anthropology&per_page=5" -Headers $headers -ErrorAction SilentlyContinue
+          if ($resp -and $resp.artifacts -and $resp.artifacts.Count -gt 0) {
+              $url = ($resp.artifacts | Where-Object { -not $_.expired } | Select-Object -First 1).archive_download_url
+              if ($url) {
+                  Invoke-WebRequest $url -Headers $headers -OutFile "prev.zip" -ErrorAction SilentlyContinue
+                  if (Test-Path "prev.zip") {
+                      Expand-Archive "prev.zip" -DestinationPath . -Force
+                      Remove-Item "prev.zip" -Force
+                      $p3 = Get-ChildItem "SOP_P3_*.csv" -ErrorAction SilentlyContinue | Select-Object -First 1
+                      $we = if (Test-Path "SOP_With_Emails.csv") { (Import-Csv "SOP_With_Emails.csv").Count } else { 0 }
+                      if ($p3) { Write-Host "Restored previous progress. Emails so far: $we" -ForegroundColor Green }
+                  }
+              }
+          } else { Write-Host "No previous artifact - starting fresh." -ForegroundColor Yellow }
 
       - name: Batch 1 (Phases 1-3 + start Phase 4)
         shell: pwsh
@@ -142,6 +165,28 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Restore previous progress
+        continue-on-error: true
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          $headers = @{ Authorization = "Bearer $env:GH_TOKEN"; Accept = "application/vnd.github+json" }
+          $resp = Invoke-RestMethod "https://api.github.com/repos/$env:GITHUB_REPOSITORY/actions/artifacts?name=results-History&per_page=5" -Headers $headers -ErrorAction SilentlyContinue
+          if ($resp -and $resp.artifacts -and $resp.artifacts.Count -gt 0) {
+              $url = ($resp.artifacts | Where-Object { -not $_.expired } | Select-Object -First 1).archive_download_url
+              if ($url) {
+                  Invoke-WebRequest $url -Headers $headers -OutFile "prev.zip" -ErrorAction SilentlyContinue
+                  if (Test-Path "prev.zip") {
+                      Expand-Archive "prev.zip" -DestinationPath . -Force
+                      Remove-Item "prev.zip" -Force
+                      $p3 = Get-ChildItem "SOP_P3_*.csv" -ErrorAction SilentlyContinue | Select-Object -First 1
+                      $we = if (Test-Path "SOP_With_Emails.csv") { (Import-Csv "SOP_With_Emails.csv").Count } else { 0 }
+                      if ($p3) { Write-Host "Restored previous progress. Emails so far: $we" -ForegroundColor Green }
+                  }
+              }
+          } else { Write-Host "No previous artifact - starting fresh." -ForegroundColor Yellow }
+
       - name: Batch 1 (Phases 1-3 + start Phase 4)
         shell: pwsh
         timeout-minutes: 90
@@ -257,6 +302,28 @@ jobs:
     if: ${{ github.event.inputs.department == '' || github.event.inputs.department == 'Sociology' }}
     steps:
       - uses: actions/checkout@v4
+
+      - name: Restore previous progress
+        continue-on-error: true
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          $headers = @{ Authorization = "Bearer $env:GH_TOKEN"; Accept = "application/vnd.github+json" }
+          $resp = Invoke-RestMethod "https://api.github.com/repos/$env:GITHUB_REPOSITORY/actions/artifacts?name=results-Sociology&per_page=5" -Headers $headers -ErrorAction SilentlyContinue
+          if ($resp -and $resp.artifacts -and $resp.artifacts.Count -gt 0) {
+              $url = ($resp.artifacts | Where-Object { -not $_.expired } | Select-Object -First 1).archive_download_url
+              if ($url) {
+                  Invoke-WebRequest $url -Headers $headers -OutFile "prev.zip" -ErrorAction SilentlyContinue
+                  if (Test-Path "prev.zip") {
+                      Expand-Archive "prev.zip" -DestinationPath . -Force
+                      Remove-Item "prev.zip" -Force
+                      $p3 = Get-ChildItem "SOP_P3_*.csv" -ErrorAction SilentlyContinue | Select-Object -First 1
+                      $we = if (Test-Path "SOP_With_Emails.csv") { (Import-Csv "SOP_With_Emails.csv").Count } else { 0 }
+                      if ($p3) { Write-Host "Restored previous progress. Emails so far: $we" -ForegroundColor Green }
+                  }
+              }
+          } else { Write-Host "No previous artifact - starting fresh." -ForegroundColor Yellow }
 
       - name: Batch 1 (Phases 1-3 + start Phase 4)
         shell: pwsh
@@ -374,6 +441,28 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Restore previous progress
+        continue-on-error: true
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          $headers = @{ Authorization = "Bearer $env:GH_TOKEN"; Accept = "application/vnd.github+json" }
+          $resp = Invoke-RestMethod "https://api.github.com/repos/$env:GITHUB_REPOSITORY/actions/artifacts?name=results-Economics&per_page=5" -Headers $headers -ErrorAction SilentlyContinue
+          if ($resp -and $resp.artifacts -and $resp.artifacts.Count -gt 0) {
+              $url = ($resp.artifacts | Where-Object { -not $_.expired } | Select-Object -First 1).archive_download_url
+              if ($url) {
+                  Invoke-WebRequest $url -Headers $headers -OutFile "prev.zip" -ErrorAction SilentlyContinue
+                  if (Test-Path "prev.zip") {
+                      Expand-Archive "prev.zip" -DestinationPath . -Force
+                      Remove-Item "prev.zip" -Force
+                      $p3 = Get-ChildItem "SOP_P3_*.csv" -ErrorAction SilentlyContinue | Select-Object -First 1
+                      $we = if (Test-Path "SOP_With_Emails.csv") { (Import-Csv "SOP_With_Emails.csv").Count } else { 0 }
+                      if ($p3) { Write-Host "Restored previous progress. Emails so far: $we" -ForegroundColor Green }
+                  }
+              }
+          } else { Write-Host "No previous artifact - starting fresh." -ForegroundColor Yellow }
+
       - name: Batch 1 (Phases 1-3 + start Phase 4)
         shell: pwsh
         timeout-minutes: 90
@@ -489,6 +578,28 @@ jobs:
     if: ${{ github.event.inputs.department == '' || github.event.inputs.department == 'Geography' }}
     steps:
       - uses: actions/checkout@v4
+
+      - name: Restore previous progress
+        continue-on-error: true
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          $headers = @{ Authorization = "Bearer $env:GH_TOKEN"; Accept = "application/vnd.github+json" }
+          $resp = Invoke-RestMethod "https://api.github.com/repos/$env:GITHUB_REPOSITORY/actions/artifacts?name=results-Geography&per_page=5" -Headers $headers -ErrorAction SilentlyContinue
+          if ($resp -and $resp.artifacts -and $resp.artifacts.Count -gt 0) {
+              $url = ($resp.artifacts | Where-Object { -not $_.expired } | Select-Object -First 1).archive_download_url
+              if ($url) {
+                  Invoke-WebRequest $url -Headers $headers -OutFile "prev.zip" -ErrorAction SilentlyContinue
+                  if (Test-Path "prev.zip") {
+                      Expand-Archive "prev.zip" -DestinationPath . -Force
+                      Remove-Item "prev.zip" -Force
+                      $p3 = Get-ChildItem "SOP_P3_*.csv" -ErrorAction SilentlyContinue | Select-Object -First 1
+                      $we = if (Test-Path "SOP_With_Emails.csv") { (Import-Csv "SOP_With_Emails.csv").Count } else { 0 }
+                      if ($p3) { Write-Host "Restored previous progress. Emails so far: $we" -ForegroundColor Green }
+                  }
+              }
+          } else { Write-Host "No previous artifact - starting fresh." -ForegroundColor Yellow }
 
       - name: Batch 1 (Phases 1-3 + start Phase 4)
         shell: pwsh
@@ -606,6 +717,28 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Restore previous progress
+        continue-on-error: true
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          $headers = @{ Authorization = "Bearer $env:GH_TOKEN"; Accept = "application/vnd.github+json" }
+          $resp = Invoke-RestMethod "https://api.github.com/repos/$env:GITHUB_REPOSITORY/actions/artifacts?name=results-Literature&per_page=5" -Headers $headers -ErrorAction SilentlyContinue
+          if ($resp -and $resp.artifacts -and $resp.artifacts.Count -gt 0) {
+              $url = ($resp.artifacts | Where-Object { -not $_.expired } | Select-Object -First 1).archive_download_url
+              if ($url) {
+                  Invoke-WebRequest $url -Headers $headers -OutFile "prev.zip" -ErrorAction SilentlyContinue
+                  if (Test-Path "prev.zip") {
+                      Expand-Archive "prev.zip" -DestinationPath . -Force
+                      Remove-Item "prev.zip" -Force
+                      $p3 = Get-ChildItem "SOP_P3_*.csv" -ErrorAction SilentlyContinue | Select-Object -First 1
+                      $we = if (Test-Path "SOP_With_Emails.csv") { (Import-Csv "SOP_With_Emails.csv").Count } else { 0 }
+                      if ($p3) { Write-Host "Restored previous progress. Emails so far: $we" -ForegroundColor Green }
+                  }
+              }
+          } else { Write-Host "No previous artifact - starting fresh." -ForegroundColor Yellow }
+
       - name: Batch 1 (Phases 1-3 + start Phase 4)
         shell: pwsh
         timeout-minutes: 90
@@ -721,6 +854,28 @@ jobs:
     if: ${{ github.event.inputs.department == '' || github.event.inputs.department == 'Communication/Media' }}
     steps:
       - uses: actions/checkout@v4
+
+      - name: Restore previous progress
+        continue-on-error: true
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          $headers = @{ Authorization = "Bearer $env:GH_TOKEN"; Accept = "application/vnd.github+json" }
+          $resp = Invoke-RestMethod "https://api.github.com/repos/$env:GITHUB_REPOSITORY/actions/artifacts?name=results-Communication&per_page=5" -Headers $headers -ErrorAction SilentlyContinue
+          if ($resp -and $resp.artifacts -and $resp.artifacts.Count -gt 0) {
+              $url = ($resp.artifacts | Where-Object { -not $_.expired } | Select-Object -First 1).archive_download_url
+              if ($url) {
+                  Invoke-WebRequest $url -Headers $headers -OutFile "prev.zip" -ErrorAction SilentlyContinue
+                  if (Test-Path "prev.zip") {
+                      Expand-Archive "prev.zip" -DestinationPath . -Force
+                      Remove-Item "prev.zip" -Force
+                      $p3 = Get-ChildItem "SOP_P3_*.csv" -ErrorAction SilentlyContinue | Select-Object -First 1
+                      $we = if (Test-Path "SOP_With_Emails.csv") { (Import-Csv "SOP_With_Emails.csv").Count } else { 0 }
+                      if ($p3) { Write-Host "Restored previous progress. Emails so far: $we" -ForegroundColor Green }
+                  }
+              }
+          } else { Write-Host "No previous artifact - starting fresh." -ForegroundColor Yellow }
 
       - name: Batch 1 (Phases 1-3 + start Phase 4)
         shell: pwsh
@@ -838,6 +993,28 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Restore previous progress
+        continue-on-error: true
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          $headers = @{ Authorization = "Bearer $env:GH_TOKEN"; Accept = "application/vnd.github+json" }
+          $resp = Invoke-RestMethod "https://api.github.com/repos/$env:GITHUB_REPOSITORY/actions/artifacts?name=results-CulturalStudies&per_page=5" -Headers $headers -ErrorAction SilentlyContinue
+          if ($resp -and $resp.artifacts -and $resp.artifacts.Count -gt 0) {
+              $url = ($resp.artifacts | Where-Object { -not $_.expired } | Select-Object -First 1).archive_download_url
+              if ($url) {
+                  Invoke-WebRequest $url -Headers $headers -OutFile "prev.zip" -ErrorAction SilentlyContinue
+                  if (Test-Path "prev.zip") {
+                      Expand-Archive "prev.zip" -DestinationPath . -Force
+                      Remove-Item "prev.zip" -Force
+                      $p3 = Get-ChildItem "SOP_P3_*.csv" -ErrorAction SilentlyContinue | Select-Object -First 1
+                      $we = if (Test-Path "SOP_With_Emails.csv") { (Import-Csv "SOP_With_Emails.csv").Count } else { 0 }
+                      if ($p3) { Write-Host "Restored previous progress. Emails so far: $we" -ForegroundColor Green }
+                  }
+              }
+          } else { Write-Host "No previous artifact - starting fresh." -ForegroundColor Yellow }
+
       - name: Batch 1 (Phases 1-3 + start Phase 4)
         shell: pwsh
         timeout-minutes: 90
@@ -953,6 +1130,28 @@ jobs:
     if: ${{ github.event.inputs.department == '' || github.event.inputs.department == 'Gender Studies' }}
     steps:
       - uses: actions/checkout@v4
+
+      - name: Restore previous progress
+        continue-on-error: true
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          $headers = @{ Authorization = "Bearer $env:GH_TOKEN"; Accept = "application/vnd.github+json" }
+          $resp = Invoke-RestMethod "https://api.github.com/repos/$env:GITHUB_REPOSITORY/actions/artifacts?name=results-GenderStudies&per_page=5" -Headers $headers -ErrorAction SilentlyContinue
+          if ($resp -and $resp.artifacts -and $resp.artifacts.Count -gt 0) {
+              $url = ($resp.artifacts | Where-Object { -not $_.expired } | Select-Object -First 1).archive_download_url
+              if ($url) {
+                  Invoke-WebRequest $url -Headers $headers -OutFile "prev.zip" -ErrorAction SilentlyContinue
+                  if (Test-Path "prev.zip") {
+                      Expand-Archive "prev.zip" -DestinationPath . -Force
+                      Remove-Item "prev.zip" -Force
+                      $p3 = Get-ChildItem "SOP_P3_*.csv" -ErrorAction SilentlyContinue | Select-Object -First 1
+                      $we = if (Test-Path "SOP_With_Emails.csv") { (Import-Csv "SOP_With_Emails.csv").Count } else { 0 }
+                      if ($p3) { Write-Host "Restored previous progress. Emails so far: $we" -ForegroundColor Green }
+                  }
+              }
+          } else { Write-Host "No previous artifact - starting fresh." -ForegroundColor Yellow }
 
       - name: Batch 1 (Phases 1-3 + start Phase 4)
         shell: pwsh

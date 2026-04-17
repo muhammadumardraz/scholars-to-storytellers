@@ -1,0 +1,37 @@
+name: S2S Continue (auto-restart)
+
+on:
+  workflow_run:
+    workflows: ["S2S Pipeline"]
+    types: [completed]
+
+jobs:
+  check-and-restart:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check if any department timed out or failed
+        id: check
+        run: |
+          CONCLUSIONS=$(gh run view ${{ github.event.workflow_run.id }} \
+            --repo $GITHUB_REPOSITORY \
+            --json jobs \
+            --jq '.jobs[].conclusion' | sort | uniq | tr '\n' ',')
+          echo "Conclusions from previous run: $CONCLUSIONS"
+          if echo "$CONCLUSIONS" | grep -qE "timed_out|failure|cancelled"; then
+            echo "needs_restart=true" >> $GITHUB_OUTPUT
+            echo "Will restart pipeline - some departments did not finish."
+          else
+            echo "needs_restart=false" >> $GITHUB_OUTPUT
+            echo "All departments completed - no restart needed."
+          fi
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Restart pipeline (all departments will resume from checkpoints)
+        if: steps.check.outputs.needs_restart == 'true'
+        run: |
+          gh workflow run run_pipeline.yml --repo $GITHUB_REPOSITORY
+          echo "Pipeline restarted. Departments that already finished will exit in seconds."
+          echo "Departments that timed out will resume from their last checkpoint."
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
