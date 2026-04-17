@@ -1,12 +1,7 @@
-# Checkpoint files (runtime only)
+# Checkpoint and output files — managed as GitHub Artifacts, never committed
 SOP_CK_*.csv
 SOP_CK_*_cursor.txt
-SOP_Phase1_Checkpoint.csv
-SOP_Email_Checkpoint.csv
-SOP_Seen_IDs.csv
-SOP_SF_Done.csv
-
-# Output CSVs are managed as GitHub Artifacts, not committed
+SOP_P3_*.csv
 SOP_With_Emails.csv
 SOP_No_Email.csv
 SOP_Authors_Full.csv

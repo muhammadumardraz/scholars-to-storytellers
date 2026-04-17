@@ -1,14 +1,16 @@
 param(
     [Parameter(Mandatory=$true)]
     [string]$Department,
-    [string]$WorkDir           = "$env:USERPROFILE\Downloads",
-    [string]$EmailForAPI       = "pakgeniusatwork@gmail.com",
-    [int]$MinWorksCount        = 3,
-    [int]$MinCitedBy           = 0,
-    [int]$DelayMs              = 500,
-    [int]$BookBatch            = 30,
-    [int]$EmailDelayMs         = 400,
-    [int]$MinCitationsWorks    = 0
+    [string]$WorkDir                = "$env:USERPROFILE\Downloads",
+    [string]$EmailForAPI            = "pakgeniusatwork@gmail.com",
+    [int]$MinWorksCount             = 3,
+    [int]$MinCitedBy                = 0,
+    [int]$DelayMs                   = 500,
+    [int]$BookBatch                 = 30,
+    [int]$EmailDelayMs              = 400,
+    [int]$MinCitationsWorks         = 0,
+    # Comma-separated keywords: author must have at least one in their concepts
+    [string]$RequiredTopicKeywords  = ""
 )
 
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
@@ -16,16 +18,33 @@ param(
 
 $amp = [char]38
 
+# OpenAlex subfield IDs (ASJC-based):
+#   1202 = History                              1208 = Literature and Literary Theory
+#   1212 = Religious Studies                    3305 = Geography
+#   3312 = Sociology                            3314 = Anthropology
+#   3315 = Communication                        3316 = Cultural Studies
+#   3320 = Political Science & Int'l Relations
+#
+# Interdisciplinary fields (no dedicated subfield) use closest pool + RequiredTopicKeywords filter
 $subfields = @{
-    "Anthropology"       = "3314"
-    "History"            = "1202"
-    "Sociology"          = "3312"
-    "Economics"          = "2002"
-    "Geography"          = "3305"
-    "Literature/English" = "1208"
-    "Communication/Media"= "3315"
-    "Cultural Studies"   = "3316"
-    "Gender Studies"     = "3318"
+    "Anthropology"               = "3314"
+    "History"                    = "1202"
+    "Sociology"                  = "3312"
+    "American Studies"           = "1202"   # History pool — filtered by US-focus keywords
+    "African American Studies"   = "3316"   # Cultural Studies pool — filtered by race/diaspora keywords
+    "Asian American Studies"     = "3312"   # Sociology pool — filtered by Asian diaspora keywords
+    "Global Studies"             = "3320"   # Political Science & International Relations
+    "English"                    = "1208"   # Literature and Literary Theory
+    "Jewish Studies"             = "1212"   # Religious Studies
+    "Cultural Studies"           = "3316"
+    "Communication/Media"        = "3315"
+    "Geography"                  = "3305"
+}
+
+# Parse required topic keywords (OR logic — author must match at least one)
+$requiredKeywords = @()
+if ($RequiredTopicKeywords.Trim() -ne "") {
+    $requiredKeywords = $RequiredTopicKeywords -split "," | ForEach-Object { $_.Trim().ToLower() } | Where-Object { $_ }
 }
 
 if (-not $subfields.ContainsKey($Department)) {
@@ -53,13 +72,29 @@ $hardSciList = @("medicine","biology","chemistry","physics","mathematics",
                  "environmental science","earth science","materials science",
                  "biochemistry","molecular","genetics","immunology","pharmacology",
                  "climate","atmospheric","oceanography","hydrology","geophysics",
-                 "botany","zoology","microbiology","neurology","cardiology")
+                 "botany","zoology","microbiology","neurology","cardiology",
+                 # Business / law / clinical — not our target
+                 "business administration","management science","finance","accounting",
+                 "marketing","operations research","information systems",
+                 "jurisprudence","criminal justice","criminology",
+                 "nursing","dentistry","veterinary","pharmacy","public health")
 
-$badInstKeywords = @("twitter","facebook","google","microsoft","amazon","apple",
-                     "illumina","linkedin","salesforce","oracle","ibm","intel",
-                     "qualcomm","nvidia","uber","airbnb","spotify","netflix",
-                     "think tank","resources for the future","rand corporation",
-                     "brookings","heritage foundation","cato institute")
+$badInstKeywords = @(
+    # Tech companies
+    "twitter","facebook","google","microsoft","amazon","apple",
+    "illumina","linkedin","salesforce","oracle","ibm","intel",
+    "qualcomm","nvidia","uber","airbnb","spotify","netflix",
+    # Think tanks & policy orgs (not academic)
+    "think tank","resources for the future","rand corporation",
+    "brookings","heritage foundation","cato institute",
+    "american enterprise institute","hoover institution",
+    # Military academies
+    "naval academy","military academy","air force academy",
+    "war college","national defense university","coast guard academy",
+    # Standalone hospitals / medical centers (not university-affiliated)
+    "memorial hospital","general hospital","veterans affairs",
+    "mayo clinic","cleveland clinic","kaiser permanente"
+)
 
 $tradePublishers = @(
     "penguin","random house","harpercollins","simon & schuster","hachette",
@@ -396,14 +431,28 @@ if (Test-Path $p3CacheFile) {
                 $isBadInst = $false
                 foreach ($bk in $badInstKeywords) { if ($instLower -like "*$bk*") { $isBadInst = $true; break } }
                 if ($isBadInst) { continue }
-                $topics = if ($a.x_concepts) { ($a.x_concepts | Select-Object -First 4 | ForEach-Object { $_.display_name }) -join "; " } else { "" }
+                # Build full concept list for filtering; store top 4 for output
+                $allConcepts = if ($a.x_concepts) { $a.x_concepts | ForEach-Object { $_.display_name } } else { @() }
+                $topics = ($allConcepts | Select-Object -First 4) -join "; "
+                $topicsAllLower = ($allConcepts -join " ").ToLower()
+
+                # Filter out hard-science / unwanted-discipline authors
                 $isHard = $false
-                foreach ($topicPart in ($topics -split ";")) {
+                foreach ($topicPart in ($allConcepts)) {
                     $t = $topicPart.Trim().ToLower()
                     foreach ($hs in $hardSciList) { if ($t -like "*$hs*") { $isHard = $true; break } }
                     if ($isHard) { break }
                 }
                 if ($isHard) { continue }
+
+                # For interdisciplinary departments: require at least one matching keyword
+                if ($requiredKeywords.Count -gt 0) {
+                    $hasRequired = $false
+                    foreach ($kw in $requiredKeywords) {
+                        if ($topicsAllLower -like "*$kw*") { $hasRequired = $true; break }
+                    }
+                    if (-not $hasRequired) { continue }
+                }
                 $authorData[$aShort] = @{
                     Id=$aShort; DisplayName=$a.display_name
                     ORCID=if ($a.ids -and $a.ids.orcid) { $a.ids.orcid } else { "" }
