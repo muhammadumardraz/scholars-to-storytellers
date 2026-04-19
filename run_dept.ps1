@@ -39,6 +39,16 @@ $subfields = @{
     "Cultural Studies"           = "3316"
     "Communication/Media"        = "3315"
     "Geography"                  = "3305"
+    "Philosophy"                 = "1211"
+    "Political Science"          = "3320"
+    "Gender Studies"             = "3313"
+    "Art History"                = "1203"
+    "Religious Studies"          = "1212"
+    "Near Eastern Studies"       = "1202"
+    "African Studies"            = "3314"
+    "Indigenous Studies"         = "3316"
+    "Environmental Humanities"   = "1202"
+    "Urban Studies"              = "3322"
 }
 
 # Parse required topic keywords (OR logic — author must match at least one)
