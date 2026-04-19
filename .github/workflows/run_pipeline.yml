@@ -502,7 +502,7 @@ jobs:
         continue-on-error: true
         env:
           EMAIL_FOR_API: ${{ secrets.EMAIL_FOR_API }}
-        run: .\run_dept.ps1 -Department "African American Studies" -WorkDir "$env:GITHUB_WORKSPACE" -EmailForAPI "$env:EMAIL_FOR_API" -RequiredTopicKeywords "african american,black american,afro-american,slavery,civil rights,racial inequality,black studies,african diaspora,race and racism"
+        run: .\run_dept.ps1 -Department "African American Studies" -WorkDir "$env:GITHUB_WORKSPACE" -EmailForAPI "$env:EMAIL_FOR_API" -RequiredTopicKeywords "race,racism,slavery,segregation,civil rights,diaspora,colonialism,black feminism,racial inequality,african american"
       - name: Save after batch 1
         if: always()
         uses: actions/upload-artifact@v4
@@ -518,7 +518,7 @@ jobs:
         continue-on-error: true
         env:
           EMAIL_FOR_API: ${{ secrets.EMAIL_FOR_API }}
-        run: .\run_dept.ps1 -Department "African American Studies" -WorkDir "$env:GITHUB_WORKSPACE" -EmailForAPI "$env:EMAIL_FOR_API" -RequiredTopicKeywords "african american,black american,afro-american,slavery,civil rights,racial inequality,black studies,african diaspora,race and racism"
+        run: .\run_dept.ps1 -Department "African American Studies" -WorkDir "$env:GITHUB_WORKSPACE" -EmailForAPI "$env:EMAIL_FOR_API" -RequiredTopicKeywords "race,racism,slavery,segregation,civil rights,diaspora,colonialism,black feminism,racial inequality,african american"
       - name: Save after batch 2
         if: always()
         uses: actions/upload-artifact@v4
@@ -534,7 +534,7 @@ jobs:
         continue-on-error: true
         env:
           EMAIL_FOR_API: ${{ secrets.EMAIL_FOR_API }}
-        run: .\run_dept.ps1 -Department "African American Studies" -WorkDir "$env:GITHUB_WORKSPACE" -EmailForAPI "$env:EMAIL_FOR_API" -RequiredTopicKeywords "african american,black american,afro-american,slavery,civil rights,racial inequality,black studies,african diaspora,race and racism"
+        run: .\run_dept.ps1 -Department "African American Studies" -WorkDir "$env:GITHUB_WORKSPACE" -EmailForAPI "$env:EMAIL_FOR_API" -RequiredTopicKeywords "race,racism,slavery,segregation,civil rights,diaspora,colonialism,black feminism,racial inequality,african american"
       - name: Save after batch 3
         if: always()
         uses: actions/upload-artifact@v4
@@ -550,7 +550,7 @@ jobs:
         continue-on-error: true
         env:
           EMAIL_FOR_API: ${{ secrets.EMAIL_FOR_API }}
-        run: .\run_dept.ps1 -Department "African American Studies" -WorkDir "$env:GITHUB_WORKSPACE" -EmailForAPI "$env:EMAIL_FOR_API" -RequiredTopicKeywords "african american,black american,afro-american,slavery,civil rights,racial inequality,black studies,african diaspora,race and racism"
+        run: .\run_dept.ps1 -Department "African American Studies" -WorkDir "$env:GITHUB_WORKSPACE" -EmailForAPI "$env:EMAIL_FOR_API" -RequiredTopicKeywords "race,racism,slavery,segregation,civil rights,diaspora,colonialism,black feminism,racial inequality,african american"
       - name: Save after batch 4
         if: always()
         uses: actions/upload-artifact@v4
@@ -566,7 +566,7 @@ jobs:
         continue-on-error: true
         env:
           EMAIL_FOR_API: ${{ secrets.EMAIL_FOR_API }}
-        run: .\run_dept.ps1 -Department "African American Studies" -WorkDir "$env:GITHUB_WORKSPACE" -EmailForAPI "$env:EMAIL_FOR_API" -RequiredTopicKeywords "african american,black american,afro-american,slavery,civil rights,racial inequality,black studies,african diaspora,race and racism"
+        run: .\run_dept.ps1 -Department "African American Studies" -WorkDir "$env:GITHUB_WORKSPACE" -EmailForAPI "$env:EMAIL_FOR_API" -RequiredTopicKeywords "race,racism,slavery,segregation,civil rights,diaspora,colonialism,black feminism,racial inequality,african american"
       - name: Save after batch 5
         if: always()
         uses: actions/upload-artifact@v4
@@ -582,7 +582,7 @@ jobs:
         continue-on-error: true
         env:
           EMAIL_FOR_API: ${{ secrets.EMAIL_FOR_API }}
-        run: .\run_dept.ps1 -Department "African American Studies" -WorkDir "$env:GITHUB_WORKSPACE" -EmailForAPI "$env:EMAIL_FOR_API" -RequiredTopicKeywords "african american,black american,afro-american,slavery,civil rights,racial inequality,black studies,african diaspora,race and racism"
+        run: .\run_dept.ps1 -Department "African American Studies" -WorkDir "$env:GITHUB_WORKSPACE" -EmailForAPI "$env:EMAIL_FOR_API" -RequiredTopicKeywords "race,racism,slavery,segregation,civil rights,diaspora,colonialism,black feminism,racial inequality,african american"
       - name: Final save
         if: always()
         uses: actions/upload-artifact@v4
