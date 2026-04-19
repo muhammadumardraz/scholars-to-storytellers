@@ -88,12 +88,23 @@ $badInstKeywords = @(
     "think tank","resources for the future","rand corporation",
     "brookings","heritage foundation","cato institute",
     "american enterprise institute","hoover institution",
+    "urban institute","hudson institute","pew research center",
+    "council on foreign relations","atlantic council",
+    # Research bureaus that are not universities
+    "national bureau of economic research",
     # Military academies
     "naval academy","military academy","air force academy",
     "war college","national defense university","coast guard academy",
     # Standalone hospitals / medical centers (not university-affiliated)
     "memorial hospital","general hospital","veterans affairs",
-    "mayo clinic","cleveland clinic","kaiser permanente"
+    "mayo clinic","cleveland clinic","kaiser permanente",
+    "community hospital","regional hospital","county hospital",
+    "health care center","health care system","medical group",
+    # University presses & publishers (not the university itself)
+    "university press","university publishing house",
+    # Standalone biotech / non-university research institutes
+    "biotechnology institute",
+    "arroyo grande","taubman health"
 )
 
 $tradePublishers = @(
@@ -112,6 +123,144 @@ $tradePublishers = @(
     "touchstone","gallery books","pocket books","threshold editions",
     "howard books","tyndale","zondervan","thomas nelson"
 )
+
+# ===========================================================================
+# Institution repair: email domain → canonical university name.
+# Called in Phase 4 after email is found to fix OpenAlex misattributions
+# (think tanks, hospitals, university presses, NBER, John Brown vs Brown, etc.)
+# ===========================================================================
+$eduDomainMap = @{
+    "brown.edu"="Brown University"; "harvard.edu"="Harvard University"
+    "mit.edu"="Massachusetts Institute of Technology"; "stanford.edu"="Stanford University"
+    "yale.edu"="Yale University"; "princeton.edu"="Princeton University"
+    "columbia.edu"="Columbia University"; "cornell.edu"="Cornell University"
+    "upenn.edu"="University of Pennsylvania"; "dartmouth.edu"="Dartmouth College"
+    "ucla.edu"="University of California, Los Angeles"
+    "berkeley.edu"="University of California, Berkeley"
+    "uci.edu"="University of California, Irvine"
+    "ucsd.edu"="University of California, San Diego"
+    "ucsb.edu"="University of California, Santa Barbara"
+    "ucdavis.edu"="University of California, Davis"
+    "ucsc.edu"="University of California, Santa Cruz"
+    "ucr.edu"="University of California, Riverside"
+    "umich.edu"="University of Michigan"; "umass.edu"="University of Massachusetts Amherst"
+    "umn.edu"="University of Minnesota"; "wisc.edu"="University of Wisconsin-Madison"
+    "illinois.edu"="University of Illinois Urbana-Champaign"
+    "indiana.edu"="Indiana University Bloomington"
+    "osu.edu"="Ohio State University"; "ohio-state.edu"="Ohio State University"
+    "psu.edu"="Pennsylvania State University"; "purdue.edu"="Purdue University"
+    "msu.edu"="Michigan State University"; "umd.edu"="University of Maryland, College Park"
+    "ufl.edu"="University of Florida"; "uga.edu"="University of Georgia"
+    "unc.edu"="University of North Carolina at Chapel Hill"
+    "ncsu.edu"="North Carolina State University"
+    "virginia.edu"="University of Virginia"; "vt.edu"="Virginia Tech"
+    "vanderbilt.edu"="Vanderbilt University"; "emory.edu"="Emory University"
+    "georgetown.edu"="Georgetown University"; "bu.edu"="Boston University"
+    "bc.edu"="Boston College"; "northeastern.edu"="Northeastern University"
+    "tufts.edu"="Tufts University"; "brandeis.edu"="Brandeis University"
+    "nyu.edu"="New York University"; "fordham.edu"="Fordham University"
+    "syr.edu"="Syracuse University"; "rochester.edu"="University of Rochester"
+    "buffalo.edu"="University at Buffalo"; "stonybrook.edu"="Stony Brook University"
+    "sunysb.edu"="Stony Brook University"
+    "binghamton.edu"="Binghamton University"; "albany.edu"="University at Albany, SUNY"
+    "newschool.edu"="The New School"; "jhu.edu"="Johns Hopkins University"
+    "american.edu"="American University"; "gwu.edu"="George Washington University"
+    "howard.edu"="Howard University"; "rutgers.edu"="Rutgers University"
+    "temple.edu"="Temple University"; "drexel.edu"="Drexel University"
+    "lehigh.edu"="Lehigh University"; "duke.edu"="Duke University"
+    "wfu.edu"="Wake Forest University"; "clemson.edu"="Clemson University"
+    "sc.edu"="University of South Carolina"; "tulane.edu"="Tulane University"
+    "lsu.edu"="Louisiana State University"; "rice.edu"="Rice University"
+    "utexas.edu"="University of Texas at Austin"; "tamu.edu"="Texas A&M University"
+    "uh.edu"="University of Houston"; "smu.edu"="Southern Methodist University"
+    "asu.edu"="Arizona State University"; "arizona.edu"="University of Arizona"
+    "unm.edu"="University of New Mexico"; "utah.edu"="University of Utah"
+    "colorado.edu"="University of Colorado Boulder"
+    "colostate.edu"="Colorado State University"
+    "uoregon.edu"="University of Oregon"; "oregonstate.edu"="Oregon State University"
+    "washington.edu"="University of Washington"; "wsu.edu"="Washington State University"
+    "usc.edu"="University of Southern California"; "sdsu.edu"="San Diego State University"
+    "ku.edu"="University of Kansas"; "ksu.edu"="Kansas State University"
+    "missouri.edu"="University of Missouri"; "iastate.edu"="Iowa State University"
+    "uiowa.edu"="University of Iowa"; "unl.edu"="University of Nebraska-Lincoln"
+    "unr.edu"="University of Nevada, Reno"; "unlv.edu"="University of Nevada, Las Vegas"
+    "hawaii.edu"="University of Hawaii at Manoa"
+    "olemiss.edu"="University of Mississippi"; "msstate.edu"="Mississippi State University"
+    "auburn.edu"="Auburn University"; "ua.edu"="University of Alabama"
+    "fsu.edu"="Florida State University"; "usf.edu"="University of South Florida"
+    "fiu.edu"="Florida International University"; "miami.edu"="University of Miami"
+    "uconn.edu"="University of Connecticut"; "unh.edu"="University of New Hampshire"
+    "uvm.edu"="University of Vermont"; "uky.edu"="University of Kentucky"
+    "louisville.edu"="University of Louisville"; "wayne.edu"="Wayne State University"
+    "caltech.edu"="California Institute of Technology"
+    "cmu.edu"="Carnegie Mellon University"; "rpi.edu"="Rensselaer Polytechnic Institute"
+    "case.edu"="Case Western Reserve University"
+    "northwestern.edu"="Northwestern University"; "uchicago.edu"="University of Chicago"
+    "gc.cuny.edu"="CUNY Graduate Center"; "hunter.cuny.edu"="Hunter College, CUNY"
+    "brooklyn.cuny.edu"="Brooklyn College, CUNY"; "qc.cuny.edu"="Queens College, CUNY"
+    "ccny.cuny.edu"="City College of New York, CUNY"; "baruch.cuny.edu"="Baruch College, CUNY"
+    "jjay.cuny.edu"="John Jay College, CUNY"; "lehman.cuny.edu"="Lehman College, CUNY"
+    "nd.edu"="University of Notre Dame"; "wustl.edu"="Washington University in St. Louis"
+    "gsu.edu"="Georgia State University"; "gatech.edu"="Georgia Institute of Technology"
+    "ucf.edu"="University of Central Florida"; "fau.edu"="Florida Atlantic University"
+    "du.edu"="University of Denver"; "depaul.edu"="DePaul University"
+    "luc.edu"="Loyola University Chicago"; "marquette.edu"="Marquette University"
+    "villanova.edu"="Villanova University"; "udel.edu"="University of Delaware"
+    "ohio.edu"="Ohio University"; "kent.edu"="Kent State University"
+    "uwm.edu"="University of Wisconsin-Milwaukee"; "byu.edu"="Brigham Young University"
+    "umsl.edu"="University of Missouri-St. Louis"; "nmsu.edu"="New Mexico State University"
+    "uakron.edu"="University of Akron"; "bgsu.edu"="Bowling Green State University"
+    "muohio.edu"="Miami University"; "wmich.edu"="Western Michigan University"
+    "emich.edu"="Eastern Michigan University"; "cmich.edu"="Central Michigan University"
+    "kennesaw.edu"="Kennesaw State University"; "famu.edu"="Florida A&M University"
+    "uccs.edu"="University of Colorado Colorado Springs"
+    "cudenver.edu"="University of Colorado Denver"
+}
+
+# Patterns that flag an institution as a secondary / wrong affiliation.
+# These are NOT in badInstKeywords (we don't skip these authors at Phase 2a
+# because they may be legitimate scholars misattributed by OpenAlex);
+# instead we repair after finding the email in Phase 4.
+$suspectInstPatterns = @(
+    "hospital","health care","health center","medical center",
+    "university press","national bureau of economic research",
+    "biotechnology institute","hoover institution",
+    "john brown university",
+    "brookings","urban institute","cato institute",
+    "heritage foundation","american enterprise institute",
+    "pew research","council on foreign relations",
+    "federal reserve","world bank","rand corporation",
+    "hudson institute","think tank","policy center","policy institute",
+    "arroyo grande","taubman health","research bureau"
+)
+
+function Repair-Institution([string]$institution, [string]$email) {
+    # Check if institution looks like a secondary / wrong affiliation
+    $lower = $institution.ToLower()
+    $suspect = $false
+    foreach ($p in $script:suspectInstPatterns) {
+        if ($lower -like ("*" + $p + "*")) { $suspect = $true; break }
+    }
+    if (-not $suspect) { return @{ Institution=$institution; Domain=$null; Fixed=$false } }
+
+    # Try to derive real institution from email domain
+    if (-not $email -or $email -eq "") { return @{ Institution=$institution; Domain=$null; Fixed=$false } }
+    $domain = ($email -split "@")[-1].ToLower().Trim()
+
+    # Direct lookup
+    if ($script:eduDomainMap.ContainsKey($domain)) {
+        return @{ Institution=$script:eduDomainMap[$domain]; Domain=$domain; Fixed=$true }
+    }
+    # Strip one subdomain level (e.g. soc.stanford.edu -> stanford.edu)
+    $parts = $domain -split "\."
+    if ($parts.Count -gt 2) {
+        $parent = ($parts[1..($parts.Count - 1)]) -join "."
+        if ($script:eduDomainMap.ContainsKey($parent)) {
+            return @{ Institution=$script:eduDomainMap[$parent]; Domain=$parent; Fixed=$true }
+        }
+    }
+    return @{ Institution=$institution; Domain=$null; Fixed=$false }
+}
 
 $apiHeaders = @{ "User-Agent" = "ScholarsToStorytellers/1.0 (mailto:$EmailForAPI)" }
 
@@ -605,10 +754,17 @@ foreach ($row in $toProcess) {
     if ($res.email) { $matched++; Write-Host "  => FOUND: $($res.email) [$($res.source)]" -ForegroundColor Green }
     else            { Write-Host "  => no email" -ForegroundColor Yellow }
 
+    # Repair institution if OpenAlex assigned a wrong affiliation (hospital,
+    # think tank, press, NBER, etc.) — fix from email domain when possible
+    $instFix = Repair-Institution $row.Institution $res.email
+    if ($instFix.Fixed) {
+        Write-Host ("  [Inst fixed: {0} -> {1}]" -f $row.Institution, $instFix.Institution) -ForegroundColor DarkCyan
+    }
+
     $outRow = [PSCustomObject]@{
         Name               = $row.Name
         Department         = $row.Department
-        Institution        = $row.Institution
+        Institution        = $instFix.Institution
         Faculty_URL        = $res.homepage
         Email              = $res.email
         Bio                = ""
@@ -618,7 +774,7 @@ foreach ($row in $toProcess) {
         Works_Count        = $row.Works_Count
         Cited_By_Count     = $row.Cited_By_Count
         Email_Source       = $res.source
-        Institution_Domain = $row.Institution_Domain
+        Institution_Domain = if ($instFix.Fixed -and $instFix.Domain) { $instFix.Domain } else { $row.Institution_Domain }
         ORCID              = $row.ORCID
         OpenAlex_ID        = $row.OpenAlex_ID
         OpenAlex_Profile   = $row.OpenAlex_Profile
