@@ -2530,3 +2530,1713 @@ jobs:
           if-no-files-found: ignore
           overwrite: true
           retention-days: 90
+
+  # ── CLASSICS ─────────────────────────────────────────────────────────────────
+  classics:
+    name: Classics
+    runs-on: windows-latest
+    timeout-minutes: 355
+    if: ${{ github.event.inputs.department == '' || github.event.inputs.department == 'Classics' }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Restore previous progress
+        continue-on-error: true
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          $headers = @{ Authorization = "Bearer $env:GH_TOKEN"; Accept = "application/vnd.github+json" }
+          $resp = Invoke-RestMethod "https://api.github.com/repos/$env:GITHUB_REPOSITORY/actions/artifacts?name=results-Classics&per_page=5" -Headers $headers -EA SilentlyContinue
+          if ($resp -and $resp.artifacts -and $resp.artifacts.Count -gt 0) { $url = ($resp.artifacts | Where-Object { -not $_.expired } | Select-Object -First 1).archive_download_url; if ($url) { Invoke-WebRequest $url -Headers $headers -OutFile "prev.zip" -EA SilentlyContinue; if (Test-Path "prev.zip") { Expand-Archive "prev.zip" -DestinationPath . -Force; Remove-Item "prev.zip" -Force; $we = if (Test-Path "SOP_With_Emails.csv") { (Import-Csv "SOP_With_Emails.csv").Count } else { 0 }; Write-Host "Restored. Emails so far: $we" -ForegroundColor Green } } } else { Write-Host "Starting fresh." -ForegroundColor Yellow }
+      - name: Batch 1
+        shell: pwsh
+        timeout-minutes: 90
+        continue-on-error: true
+        env:
+          EMAIL_FOR_API: ${{ secrets.EMAIL_FOR_API }}
+        run: .\run_dept.ps1 -Department Classics -WorkDir "$env:GITHUB_WORKSPACE" -EmailForAPI "$env:EMAIL_FOR_API"
+      - name: Save after batch 1
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: results-Classics
+          path: "*.csv"
+          if-no-files-found: ignore
+          overwrite: true
+          retention-days: 90
+      - name: Batch 2
+        shell: pwsh
+        timeout-minutes: 50
+        continue-on-error: true
+        env:
+          EMAIL_FOR_API: ${{ secrets.EMAIL_FOR_API }}
+        run: .\run_dept.ps1 -Department Classics -WorkDir "$env:GITHUB_WORKSPACE" -EmailForAPI "$env:EMAIL_FOR_API"
+      - name: Save after batch 2
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: results-Classics
+          path: "*.csv"
+          if-no-files-found: ignore
+          overwrite: true
+          retention-days: 90
+      - name: Batch 3
+        shell: pwsh
+        timeout-minutes: 50
+        continue-on-error: true
+        env:
+          EMAIL_FOR_API: ${{ secrets.EMAIL_FOR_API }}
+        run: .\run_dept.ps1 -Department Classics -WorkDir "$env:GITHUB_WORKSPACE" -EmailForAPI "$env:EMAIL_FOR_API"
+      - name: Save after batch 3
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: results-Classics
+          path: "*.csv"
+          if-no-files-found: ignore
+          overwrite: true
+          retention-days: 90
+      - name: Batch 4
+        shell: pwsh
+        timeout-minutes: 50
+        continue-on-error: true
+        env:
+          EMAIL_FOR_API: ${{ secrets.EMAIL_FOR_API }}
+        run: .\run_dept.ps1 -Department Classics -WorkDir "$env:GITHUB_WORKSPACE" -EmailForAPI "$env:EMAIL_FOR_API"
+      - name: Save after batch 4
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: results-Classics
+          path: "*.csv"
+          if-no-files-found: ignore
+          overwrite: true
+          retention-days: 90
+      - name: Batch 5
+        shell: pwsh
+        timeout-minutes: 50
+        continue-on-error: true
+        env:
+          EMAIL_FOR_API: ${{ secrets.EMAIL_FOR_API }}
+        run: .\run_dept.ps1 -Department Classics -WorkDir "$env:GITHUB_WORKSPACE" -EmailForAPI "$env:EMAIL_FOR_API"
+      - name: Save after batch 5
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: results-Classics
+          path: "*.csv"
+          if-no-files-found: ignore
+          overwrite: true
+          retention-days: 90
+      - name: Batch 6
+        shell: pwsh
+        timeout-minutes: 45
+        continue-on-error: true
+        env:
+          EMAIL_FOR_API: ${{ secrets.EMAIL_FOR_API }}
+        run: .\run_dept.ps1 -Department Classics -WorkDir "$env:GITHUB_WORKSPACE" -EmailForAPI "$env:EMAIL_FOR_API"
+      - name: Final save
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: results-Classics
+          path: "*.csv"
+          if-no-files-found: ignore
+          overwrite: true
+          retention-days: 90
+
+  # ── ARCHAEOLOGY ───────────────────────────────────────────────────────────────
+  archaeology:
+    name: Archaeology
+    runs-on: windows-latest
+    timeout-minutes: 355
+    if: ${{ github.event.inputs.department == '' || github.event.inputs.department == 'Archaeology' }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Restore previous progress
+        continue-on-error: true
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          $headers = @{ Authorization = "Bearer $env:GH_TOKEN"; Accept = "application/vnd.github+json" }
+          $resp = Invoke-RestMethod "https://api.github.com/repos/$env:GITHUB_REPOSITORY/actions/artifacts?name=results-Archaeology&per_page=5" -Headers $headers -EA SilentlyContinue
+          if ($resp -and $resp.artifacts -and $resp.artifacts.Count -gt 0) { $url = ($resp.artifacts | Where-Object { -not $_.expired } | Select-Object -First 1).archive_download_url; if ($url) { Invoke-WebRequest $url -Headers $headers -OutFile "prev.zip" -EA SilentlyContinue; if (Test-Path "prev.zip") { Expand-Archive "prev.zip" -DestinationPath . -Force; Remove-Item "prev.zip" -Force; $we = if (Test-Path "SOP_With_Emails.csv") { (Import-Csv "SOP_With_Emails.csv").Count } else { 0 }; Write-Host "Restored. Emails so far: $we" -ForegroundColor Green } } } else { Write-Host "Starting fresh." -ForegroundColor Yellow }
+      - name: Batch 1
+        shell: pwsh
+        timeout-minutes: 90
+        continue-on-error: true
+        env:
+          EMAIL_FOR_API: ${{ secrets.EMAIL_FOR_API }}
+        run: .\run_dept.ps1 -Department Archaeology -WorkDir "$env:GITHUB_WORKSPACE" -EmailForAPI "$env:EMAIL_FOR_API"
+      - name: Save after batch 1
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: results-Archaeology
+          path: "*.csv"
+          if-no-files-found: ignore
+          overwrite: true
+          retention-days: 90
+      - name: Batch 2
+        shell: pwsh
+        timeout-minutes: 50
+        continue-on-error: true
+        env:
+          EMAIL_FOR_API: ${{ secrets.EMAIL_FOR_API }}
+        run: .\run_dept.ps1 -Department Archaeology -WorkDir "$env:GITHUB_WORKSPACE" -EmailForAPI "$env:EMAIL_FOR_API"
+      - name: Save after batch 2
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: results-Archaeology
+          path: "*.csv"
+          if-no-files-found: ignore
+          overwrite: true
+          retention-days: 90
+      - name: Batch 3
+        shell: pwsh
+        timeout-minutes: 50
+        continue-on-error: true
+        env:
+          EMAIL_FOR_API: ${{ secrets.EMAIL_FOR_API }}
+        run: .\run_dept.ps1 -Department Archaeology -WorkDir "$env:GITHUB_WORKSPACE" -EmailForAPI "$env:EMAIL_FOR_API"
+      - name: Save after batch 3
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: results-Archaeology
+          path: "*.csv"
+          if-no-files-found: ignore
+          overwrite: true
+          retention-days: 90
+      - name: Batch 4
+        shell: pwsh
+        timeout-minutes: 50
+        continue-on-error: true
+        env:
+          EMAIL_FOR_API: ${{ secrets.EMAIL_FOR_API }}
+        run: .\run_dept.ps1 -Department Archaeology -WorkDir "$env:GITHUB_WORKSPACE" -EmailForAPI "$env:EMAIL_FOR_API"
+      - name: Save after batch 4
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: results-Archaeology
+          path: "*.csv"
+          if-no-files-found: ignore
+          overwrite: true
+          retention-days: 90
+      - name: Batch 5
+        shell: pwsh
+        timeout-minutes: 50
+        continue-on-error: true
+        env:
+          EMAIL_FOR_API: ${{ secrets.EMAIL_FOR_API }}
+        run: .\run_dept.ps1 -Department Archaeology -WorkDir "$env:GITHUB_WORKSPACE" -EmailForAPI "$env:EMAIL_FOR_API"
+      - name: Save after batch 5
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: results-Archaeology
+          path: "*.csv"
+          if-no-files-found: ignore
+          overwrite: true
+          retention-days: 90
+      - name: Batch 6
+        shell: pwsh
+        timeout-minutes: 45
+        continue-on-error: true
+        env:
+          EMAIL_FOR_API: ${{ secrets.EMAIL_FOR_API }}
+        run: .\run_dept.ps1 -Department Archaeology -WorkDir "$env:GITHUB_WORKSPACE" -EmailForAPI "$env:EMAIL_FOR_API"
+      - name: Final save
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: results-Archaeology
+          path: "*.csv"
+          if-no-files-found: ignore
+          overwrite: true
+          retention-days: 90
+
+  # ── LINGUISTICS ───────────────────────────────────────────────────────────────
+  linguistics:
+    name: Linguistics
+    runs-on: windows-latest
+    timeout-minutes: 355
+    if: ${{ github.event.inputs.department == '' || github.event.inputs.department == 'Linguistics' }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Restore previous progress
+        continue-on-error: true
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          $headers = @{ Authorization = "Bearer $env:GH_TOKEN"; Accept = "application/vnd.github+json" }
+          $resp = Invoke-RestMethod "https://api.github.com/repos/$env:GITHUB_REPOSITORY/actions/artifacts?name=results-Linguistics&per_page=5" -Headers $headers -EA SilentlyContinue
+          if ($resp -and $resp.artifacts -and $resp.artifacts.Count -gt 0) { $url = ($resp.artifacts | Where-Object { -not $_.expired } | Select-Object -First 1).archive_download_url; if ($url) { Invoke-WebRequest $url -Headers $headers -OutFile "prev.zip" -EA SilentlyContinue; if (Test-Path "prev.zip") { Expand-Archive "prev.zip" -DestinationPath . -Force; Remove-Item "prev.zip" -Force; $we = if (Test-Path "SOP_With_Emails.csv") { (Import-Csv "SOP_With_Emails.csv").Count } else { 0 }; Write-Host "Restored. Emails so far: $we" -ForegroundColor Green } } } else { Write-Host "Starting fresh." -ForegroundColor Yellow }
+      - name: Batch 1
+        shell: pwsh
+        timeout-minutes: 90
+        continue-on-error: true
+        env:
+          EMAIL_FOR_API: ${{ secrets.EMAIL_FOR_API }}
+        run: .\run_dept.ps1 -Department Linguistics -WorkDir "$env:GITHUB_WORKSPACE" -EmailForAPI "$env:EMAIL_FOR_API"
+      - name: Save after batch 1
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: results-Linguistics
+          path: "*.csv"
+          if-no-files-found: ignore
+          overwrite: true
+          retention-days: 90
+      - name: Batch 2
+        shell: pwsh
+        timeout-minutes: 50
+        continue-on-error: true
+        env:
+          EMAIL_FOR_API: ${{ secrets.EMAIL_FOR_API }}
+        run: .\run_dept.ps1 -Department Linguistics -WorkDir "$env:GITHUB_WORKSPACE" -EmailForAPI "$env:EMAIL_FOR_API"
+      - name: Save after batch 2
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: results-Linguistics
+          path: "*.csv"
+          if-no-files-found: ignore
+          overwrite: true
+          retention-days: 90
+      - name: Batch 3
+        shell: pwsh
+        timeout-minutes: 50
+        continue-on-error: true
+        env:
+          EMAIL_FOR_API: ${{ secrets.EMAIL_FOR_API }}
+        run: .\run_dept.ps1 -Department Linguistics -WorkDir "$env:GITHUB_WORKSPACE" -EmailForAPI "$env:EMAIL_FOR_API"
+      - name: Save after batch 3
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: results-Linguistics
+          path: "*.csv"
+          if-no-files-found: ignore
+          overwrite: true
+          retention-days: 90
+      - name: Batch 4
+        shell: pwsh
+        timeout-minutes: 50
+        continue-on-error: true
+        env:
+          EMAIL_FOR_API: ${{ secrets.EMAIL_FOR_API }}
+        run: .\run_dept.ps1 -Department Linguistics -WorkDir "$env:GITHUB_WORKSPACE" -EmailForAPI "$env:EMAIL_FOR_API"
+      - name: Save after batch 4
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: results-Linguistics
+          path: "*.csv"
+          if-no-files-found: ignore
+          overwrite: true
+          retention-days: 90
+      - name: Batch 5
+        shell: pwsh
+        timeout-minutes: 50
+        continue-on-error: true
+        env:
+          EMAIL_FOR_API: ${{ secrets.EMAIL_FOR_API }}
+        run: .\run_dept.ps1 -Department Linguistics -WorkDir "$env:GITHUB_WORKSPACE" -EmailForAPI "$env:EMAIL_FOR_API"
+      - name: Save after batch 5
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: results-Linguistics
+          path: "*.csv"
+          if-no-files-found: ignore
+          overwrite: true
+          retention-days: 90
+      - name: Batch 6
+        shell: pwsh
+        timeout-minutes: 45
+        continue-on-error: true
+        env:
+          EMAIL_FOR_API: ${{ secrets.EMAIL_FOR_API }}
+        run: .\run_dept.ps1 -Department Linguistics -WorkDir "$env:GITHUB_WORKSPACE" -EmailForAPI "$env:EMAIL_FOR_API"
+      - name: Final save
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: results-Linguistics
+          path: "*.csv"
+          if-no-files-found: ignore
+          overwrite: true
+          retention-days: 90
+
+  # ── LATIN AMERICAN STUDIES ────────────────────────────────────────────────────
+  latin-american-studies:
+    name: Latin American Studies
+    runs-on: windows-latest
+    timeout-minutes: 355
+    if: ${{ github.event.inputs.department == '' || github.event.inputs.department == 'Latin American Studies' }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Restore previous progress
+        continue-on-error: true
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          $headers = @{ Authorization = "Bearer $env:GH_TOKEN"; Accept = "application/vnd.github+json" }
+          $resp = Invoke-RestMethod "https://api.github.com/repos/$env:GITHUB_REPOSITORY/actions/artifacts?name=results-LatinAmericanStudies&per_page=5" -Headers $headers -EA SilentlyContinue
+          if ($resp -and $resp.artifacts -and $resp.artifacts.Count -gt 0) { $url = ($resp.artifacts | Where-Object { -not $_.expired } | Select-Object -First 1).archive_download_url; if ($url) { Invoke-WebRequest $url -Headers $headers -OutFile "prev.zip" -EA SilentlyContinue; if (Test-Path "prev.zip") { Expand-Archive "prev.zip" -DestinationPath . -Force; Remove-Item "prev.zip" -Force; $we = if (Test-Path "SOP_With_Emails.csv") { (Import-Csv "SOP_With_Emails.csv").Count } else { 0 }; Write-Host "Restored. Emails so far: $we" -ForegroundColor Green } } } else { Write-Host "Starting fresh." -ForegroundColor Yellow }
+      - name: Batch 1
+        shell: pwsh
+        timeout-minutes: 90
+        continue-on-error: true
+        env:
+          EMAIL_FOR_API: ${{ secrets.EMAIL_FOR_API }}
+        run: .\run_dept.ps1 -Department "Latin American Studies" -WorkDir "$env:GITHUB_WORKSPACE" -EmailForAPI "$env:EMAIL_FOR_API" -RequiredTopicKeywords "latin america,mexico,brazil,caribbean,cuba,argentina,colombia,chile,central america,chicano,hispanic,latinx,mesoamerica"
+      - name: Save after batch 1
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: results-LatinAmericanStudies
+          path: "*.csv"
+          if-no-files-found: ignore
+          overwrite: true
+          retention-days: 90
+      - name: Batch 2
+        shell: pwsh
+        timeout-minutes: 50
+        continue-on-error: true
+        env:
+          EMAIL_FOR_API: ${{ secrets.EMAIL_FOR_API }}
+        run: .\run_dept.ps1 -Department "Latin American Studies" -WorkDir "$env:GITHUB_WORKSPACE" -EmailForAPI "$env:EMAIL_FOR_API" -RequiredTopicKeywords "latin america,mexico,brazil,caribbean,cuba,argentina,colombia,chile,central america,chicano,hispanic,latinx,mesoamerica"
+      - name: Save after batch 2
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: results-LatinAmericanStudies
+          path: "*.csv"
+          if-no-files-found: ignore
+          overwrite: true
+          retention-days: 90
+      - name: Batch 3
+        shell: pwsh
+        timeout-minutes: 50
+        continue-on-error: true
+        env:
+          EMAIL_FOR_API: ${{ secrets.EMAIL_FOR_API }}
+        run: .\run_dept.ps1 -Department "Latin American Studies" -WorkDir "$env:GITHUB_WORKSPACE" -EmailForAPI "$env:EMAIL_FOR_API" -RequiredTopicKeywords "latin america,mexico,brazil,caribbean,cuba,argentina,colombia,chile,central america,chicano,hispanic,latinx,mesoamerica"
+      - name: Save after batch 3
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: results-LatinAmericanStudies
+          path: "*.csv"
+          if-no-files-found: ignore
+          overwrite: true
+          retention-days: 90
+      - name: Batch 4
+        shell: pwsh
+        timeout-minutes: 50
+        continue-on-error: true
+        env:
+          EMAIL_FOR_API: ${{ secrets.EMAIL_FOR_API }}
+        run: .\run_dept.ps1 -Department "Latin American Studies" -WorkDir "$env:GITHUB_WORKSPACE" -EmailForAPI "$env:EMAIL_FOR_API" -RequiredTopicKeywords "latin america,mexico,brazil,caribbean,cuba,argentina,colombia,chile,central america,chicano,hispanic,latinx,mesoamerica"
+      - name: Save after batch 4
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: results-LatinAmericanStudies
+          path: "*.csv"
+          if-no-files-found: ignore
+          overwrite: true
+          retention-days: 90
+      - name: Batch 5
+        shell: pwsh
+        timeout-minutes: 50
+        continue-on-error: true
+        env:
+          EMAIL_FOR_API: ${{ secrets.EMAIL_FOR_API }}
+        run: .\run_dept.ps1 -Department "Latin American Studies" -WorkDir "$env:GITHUB_WORKSPACE" -EmailForAPI "$env:EMAIL_FOR_API" -RequiredTopicKeywords "latin america,mexico,brazil,caribbean,cuba,argentina,colombia,chile,central america,chicano,hispanic,latinx,mesoamerica"
+      - name: Save after batch 5
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: results-LatinAmericanStudies
+          path: "*.csv"
+          if-no-files-found: ignore
+          overwrite: true
+          retention-days: 90
+      - name: Batch 6
+        shell: pwsh
+        timeout-minutes: 45
+        continue-on-error: true
+        env:
+          EMAIL_FOR_API: ${{ secrets.EMAIL_FOR_API }}
+        run: .\run_dept.ps1 -Department "Latin American Studies" -WorkDir "$env:GITHUB_WORKSPACE" -EmailForAPI "$env:EMAIL_FOR_API" -RequiredTopicKeywords "latin america,mexico,brazil,caribbean,cuba,argentina,colombia,chile,central america,chicano,hispanic,latinx,mesoamerica"
+      - name: Final save
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: results-LatinAmericanStudies
+          path: "*.csv"
+          if-no-files-found: ignore
+          overwrite: true
+          retention-days: 90
+
+  # ── ASIAN STUDIES ─────────────────────────────────────────────────────────────
+  asian-studies:
+    name: Asian Studies
+    runs-on: windows-latest
+    timeout-minutes: 355
+    if: ${{ github.event.inputs.department == '' || github.event.inputs.department == 'Asian Studies' }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Restore previous progress
+        continue-on-error: true
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          $headers = @{ Authorization = "Bearer $env:GH_TOKEN"; Accept = "application/vnd.github+json" }
+          $resp = Invoke-RestMethod "https://api.github.com/repos/$env:GITHUB_REPOSITORY/actions/artifacts?name=results-AsianStudies&per_page=5" -Headers $headers -EA SilentlyContinue
+          if ($resp -and $resp.artifacts -and $resp.artifacts.Count -gt 0) { $url = ($resp.artifacts | Where-Object { -not $_.expired } | Select-Object -First 1).archive_download_url; if ($url) { Invoke-WebRequest $url -Headers $headers -OutFile "prev.zip" -EA SilentlyContinue; if (Test-Path "prev.zip") { Expand-Archive "prev.zip" -DestinationPath . -Force; Remove-Item "prev.zip" -Force; $we = if (Test-Path "SOP_With_Emails.csv") { (Import-Csv "SOP_With_Emails.csv").Count } else { 0 }; Write-Host "Restored. Emails so far: $we" -ForegroundColor Green } } } else { Write-Host "Starting fresh." -ForegroundColor Yellow }
+      - name: Batch 1
+        shell: pwsh
+        timeout-minutes: 90
+        continue-on-error: true
+        env:
+          EMAIL_FOR_API: ${{ secrets.EMAIL_FOR_API }}
+        run: .\run_dept.ps1 -Department "Asian Studies" -WorkDir "$env:GITHUB_WORKSPACE" -EmailForAPI "$env:EMAIL_FOR_API" -RequiredTopicKeywords "china,japan,korea,india,southeast asia,east asia,south asia,asia pacific,chinese history,japanese history,sinology,indology,buddhism,confucianism"
+      - name: Save after batch 1
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: results-AsianStudies
+          path: "*.csv"
+          if-no-files-found: ignore
+          overwrite: true
+          retention-days: 90
+      - name: Batch 2
+        shell: pwsh
+        timeout-minutes: 50
+        continue-on-error: true
+        env:
+          EMAIL_FOR_API: ${{ secrets.EMAIL_FOR_API }}
+        run: .\run_dept.ps1 -Department "Asian Studies" -WorkDir "$env:GITHUB_WORKSPACE" -EmailForAPI "$env:EMAIL_FOR_API" -RequiredTopicKeywords "china,japan,korea,india,southeast asia,east asia,south asia,asia pacific,chinese history,japanese history,sinology,indology,buddhism,confucianism"
+      - name: Save after batch 2
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: results-AsianStudies
+          path: "*.csv"
+          if-no-files-found: ignore
+          overwrite: true
+          retention-days: 90
+      - name: Batch 3
+        shell: pwsh
+        timeout-minutes: 50
+        continue-on-error: true
+        env:
+          EMAIL_FOR_API: ${{ secrets.EMAIL_FOR_API }}
+        run: .\run_dept.ps1 -Department "Asian Studies" -WorkDir "$env:GITHUB_WORKSPACE" -EmailForAPI "$env:EMAIL_FOR_API" -RequiredTopicKeywords "china,japan,korea,india,southeast asia,east asia,south asia,asia pacific,chinese history,japanese history,sinology,indology,buddhism,confucianism"
+      - name: Save after batch 3
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: results-AsianStudies
+          path: "*.csv"
+          if-no-files-found: ignore
+          overwrite: true
+          retention-days: 90
+      - name: Batch 4
+        shell: pwsh
+        timeout-minutes: 50
+        continue-on-error: true
+        env:
+          EMAIL_FOR_API: ${{ secrets.EMAIL_FOR_API }}
+        run: .\run_dept.ps1 -Department "Asian Studies" -WorkDir "$env:GITHUB_WORKSPACE" -EmailForAPI "$env:EMAIL_FOR_API" -RequiredTopicKeywords "china,japan,korea,india,southeast asia,east asia,south asia,asia pacific,chinese history,japanese history,sinology,indology,buddhism,confucianism"
+      - name: Save after batch 4
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: results-AsianStudies
+          path: "*.csv"
+          if-no-files-found: ignore
+          overwrite: true
+          retention-days: 90
+      - name: Batch 5
+        shell: pwsh
+        timeout-minutes: 50
+        continue-on-error: true
+        env:
+          EMAIL_FOR_API: ${{ secrets.EMAIL_FOR_API }}
+        run: .\run_dept.ps1 -Department "Asian Studies" -WorkDir "$env:GITHUB_WORKSPACE" -EmailForAPI "$env:EMAIL_FOR_API" -RequiredTopicKeywords "china,japan,korea,india,southeast asia,east asia,south asia,asia pacific,chinese history,japanese history,sinology,indology,buddhism,confucianism"
+      - name: Save after batch 5
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: results-AsianStudies
+          path: "*.csv"
+          if-no-files-found: ignore
+          overwrite: true
+          retention-days: 90
+      - name: Batch 6
+        shell: pwsh
+        timeout-minutes: 45
+        continue-on-error: true
+        env:
+          EMAIL_FOR_API: ${{ secrets.EMAIL_FOR_API }}
+        run: .\run_dept.ps1 -Department "Asian Studies" -WorkDir "$env:GITHUB_WORKSPACE" -EmailForAPI "$env:EMAIL_FOR_API" -RequiredTopicKeywords "china,japan,korea,india,southeast asia,east asia,south asia,asia pacific,chinese history,japanese history,sinology,indology,buddhism,confucianism"
+      - name: Final save
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: results-AsianStudies
+          path: "*.csv"
+          if-no-files-found: ignore
+          overwrite: true
+          retention-days: 90
+
+  # ── EUROPEAN STUDIES ──────────────────────────────────────────────────────────
+  european-studies:
+    name: European Studies
+    runs-on: windows-latest
+    timeout-minutes: 355
+    if: ${{ github.event.inputs.department == '' || github.event.inputs.department == 'European Studies' }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Restore previous progress
+        continue-on-error: true
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          $headers = @{ Authorization = "Bearer $env:GH_TOKEN"; Accept = "application/vnd.github+json" }
+          $resp = Invoke-RestMethod "https://api.github.com/repos/$env:GITHUB_REPOSITORY/actions/artifacts?name=results-EuropeanStudies&per_page=5" -Headers $headers -EA SilentlyContinue
+          if ($resp -and $resp.artifacts -and $resp.artifacts.Count -gt 0) { $url = ($resp.artifacts | Where-Object { -not $_.expired } | Select-Object -First 1).archive_download_url; if ($url) { Invoke-WebRequest $url -Headers $headers -OutFile "prev.zip" -EA SilentlyContinue; if (Test-Path "prev.zip") { Expand-Archive "prev.zip" -DestinationPath . -Force; Remove-Item "prev.zip" -Force; $we = if (Test-Path "SOP_With_Emails.csv") { (Import-Csv "SOP_With_Emails.csv").Count } else { 0 }; Write-Host "Restored. Emails so far: $we" -ForegroundColor Green } } } else { Write-Host "Starting fresh." -ForegroundColor Yellow }
+      - name: Batch 1
+        shell: pwsh
+        timeout-minutes: 90
+        continue-on-error: true
+        env:
+          EMAIL_FOR_API: ${{ secrets.EMAIL_FOR_API }}
+        run: .\run_dept.ps1 -Department "European Studies" -WorkDir "$env:GITHUB_WORKSPACE" -EmailForAPI "$env:EMAIL_FOR_API" -RequiredTopicKeywords "europe,european history,france,germany,britain,italy,spain,european culture,western europe,eastern europe,cold war europe,nazi,fascism,empire"
+      - name: Save after batch 1
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: results-EuropeanStudies
+          path: "*.csv"
+          if-no-files-found: ignore
+          overwrite: true
+          retention-days: 90
+      - name: Batch 2
+        shell: pwsh
+        timeout-minutes: 50
+        continue-on-error: true
+        env:
+          EMAIL_FOR_API: ${{ secrets.EMAIL_FOR_API }}
+        run: .\run_dept.ps1 -Department "European Studies" -WorkDir "$env:GITHUB_WORKSPACE" -EmailForAPI "$env:EMAIL_FOR_API" -RequiredTopicKeywords "europe,european history,france,germany,britain,italy,spain,european culture,western europe,eastern europe,cold war europe,nazi,fascism,empire"
+      - name: Save after batch 2
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: results-EuropeanStudies
+          path: "*.csv"
+          if-no-files-found: ignore
+          overwrite: true
+          retention-days: 90
+      - name: Batch 3
+        shell: pwsh
+        timeout-minutes: 50
+        continue-on-error: true
+        env:
+          EMAIL_FOR_API: ${{ secrets.EMAIL_FOR_API }}
+        run: .\run_dept.ps1 -Department "European Studies" -WorkDir "$env:GITHUB_WORKSPACE" -EmailForAPI "$env:EMAIL_FOR_API" -RequiredTopicKeywords "europe,european history,france,germany,britain,italy,spain,european culture,western europe,eastern europe,cold war europe,nazi,fascism,empire"
+      - name: Save after batch 3
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: results-EuropeanStudies
+          path: "*.csv"
+          if-no-files-found: ignore
+          overwrite: true
+          retention-days: 90
+      - name: Batch 4
+        shell: pwsh
+        timeout-minutes: 50
+        continue-on-error: true
+        env:
+          EMAIL_FOR_API: ${{ secrets.EMAIL_FOR_API }}
+        run: .\run_dept.ps1 -Department "European Studies" -WorkDir "$env:GITHUB_WORKSPACE" -EmailForAPI "$env:EMAIL_FOR_API" -RequiredTopicKeywords "europe,european history,france,germany,britain,italy,spain,european culture,western europe,eastern europe,cold war europe,nazi,fascism,empire"
+      - name: Save after batch 4
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: results-EuropeanStudies
+          path: "*.csv"
+          if-no-files-found: ignore
+          overwrite: true
+          retention-days: 90
+      - name: Batch 5
+        shell: pwsh
+        timeout-minutes: 50
+        continue-on-error: true
+        env:
+          EMAIL_FOR_API: ${{ secrets.EMAIL_FOR_API }}
+        run: .\run_dept.ps1 -Department "European Studies" -WorkDir "$env:GITHUB_WORKSPACE" -EmailForAPI "$env:EMAIL_FOR_API" -RequiredTopicKeywords "europe,european history,france,germany,britain,italy,spain,european culture,western europe,eastern europe,cold war europe,nazi,fascism,empire"
+      - name: Save after batch 5
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: results-EuropeanStudies
+          path: "*.csv"
+          if-no-files-found: ignore
+          overwrite: true
+          retention-days: 90
+      - name: Batch 6
+        shell: pwsh
+        timeout-minutes: 45
+        continue-on-error: true
+        env:
+          EMAIL_FOR_API: ${{ secrets.EMAIL_FOR_API }}
+        run: .\run_dept.ps1 -Department "European Studies" -WorkDir "$env:GITHUB_WORKSPACE" -EmailForAPI "$env:EMAIL_FOR_API" -RequiredTopicKeywords "europe,european history,france,germany,britain,italy,spain,european culture,western europe,eastern europe,cold war europe,nazi,fascism,empire"
+      - name: Final save
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: results-EuropeanStudies
+          path: "*.csv"
+          if-no-files-found: ignore
+          overwrite: true
+          retention-days: 90
+
+  # ── FILM AND CINEMA STUDIES ───────────────────────────────────────────────────
+  film-cinema-studies:
+    name: Film and Cinema Studies
+    runs-on: windows-latest
+    timeout-minutes: 355
+    if: ${{ github.event.inputs.department == '' || github.event.inputs.department == 'Film and Cinema Studies' }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Restore previous progress
+        continue-on-error: true
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          $headers = @{ Authorization = "Bearer $env:GH_TOKEN"; Accept = "application/vnd.github+json" }
+          $resp = Invoke-RestMethod "https://api.github.com/repos/$env:GITHUB_REPOSITORY/actions/artifacts?name=results-FilmCinemaStudies&per_page=5" -Headers $headers -EA SilentlyContinue
+          if ($resp -and $resp.artifacts -and $resp.artifacts.Count -gt 0) { $url = ($resp.artifacts | Where-Object { -not $_.expired } | Select-Object -First 1).archive_download_url; if ($url) { Invoke-WebRequest $url -Headers $headers -OutFile "prev.zip" -EA SilentlyContinue; if (Test-Path "prev.zip") { Expand-Archive "prev.zip" -DestinationPath . -Force; Remove-Item "prev.zip" -Force; $we = if (Test-Path "SOP_With_Emails.csv") { (Import-Csv "SOP_With_Emails.csv").Count } else { 0 }; Write-Host "Restored. Emails so far: $we" -ForegroundColor Green } } } else { Write-Host "Starting fresh." -ForegroundColor Yellow }
+      - name: Batch 1
+        shell: pwsh
+        timeout-minutes: 90
+        continue-on-error: true
+        env:
+          EMAIL_FOR_API: ${{ secrets.EMAIL_FOR_API }}
+        run: .\run_dept.ps1 -Department "Film and Cinema Studies" -WorkDir "$env:GITHUB_WORKSPACE" -EmailForAPI "$env:EMAIL_FOR_API" -RequiredTopicKeywords "film,cinema,movie,documentary,television,screen studies,film theory,cinematic,hollywood,avant-garde film,media studies,visual culture"
+      - name: Save after batch 1
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: results-FilmCinemaStudies
+          path: "*.csv"
+          if-no-files-found: ignore
+          overwrite: true
+          retention-days: 90
+      - name: Batch 2
+        shell: pwsh
+        timeout-minutes: 50
+        continue-on-error: true
+        env:
+          EMAIL_FOR_API: ${{ secrets.EMAIL_FOR_API }}
+        run: .\run_dept.ps1 -Department "Film and Cinema Studies" -WorkDir "$env:GITHUB_WORKSPACE" -EmailForAPI "$env:EMAIL_FOR_API" -RequiredTopicKeywords "film,cinema,movie,documentary,television,screen studies,film theory,cinematic,hollywood,avant-garde film,media studies,visual culture"
+      - name: Save after batch 2
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: results-FilmCinemaStudies
+          path: "*.csv"
+          if-no-files-found: ignore
+          overwrite: true
+          retention-days: 90
+      - name: Batch 3
+        shell: pwsh
+        timeout-minutes: 50
+        continue-on-error: true
+        env:
+          EMAIL_FOR_API: ${{ secrets.EMAIL_FOR_API }}
+        run: .\run_dept.ps1 -Department "Film and Cinema Studies" -WorkDir "$env:GITHUB_WORKSPACE" -EmailForAPI "$env:EMAIL_FOR_API" -RequiredTopicKeywords "film,cinema,movie,documentary,television,screen studies,film theory,cinematic,hollywood,avant-garde film,media studies,visual culture"
+      - name: Save after batch 3
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: results-FilmCinemaStudies
+          path: "*.csv"
+          if-no-files-found: ignore
+          overwrite: true
+          retention-days: 90
+      - name: Batch 4
+        shell: pwsh
+        timeout-minutes: 50
+        continue-on-error: true
+        env:
+          EMAIL_FOR_API: ${{ secrets.EMAIL_FOR_API }}
+        run: .\run_dept.ps1 -Department "Film and Cinema Studies" -WorkDir "$env:GITHUB_WORKSPACE" -EmailForAPI "$env:EMAIL_FOR_API" -RequiredTopicKeywords "film,cinema,movie,documentary,television,screen studies,film theory,cinematic,hollywood,avant-garde film,media studies,visual culture"
+      - name: Save after batch 4
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: results-FilmCinemaStudies
+          path: "*.csv"
+          if-no-files-found: ignore
+          overwrite: true
+          retention-days: 90
+      - name: Batch 5
+        shell: pwsh
+        timeout-minutes: 50
+        continue-on-error: true
+        env:
+          EMAIL_FOR_API: ${{ secrets.EMAIL_FOR_API }}
+        run: .\run_dept.ps1 -Department "Film and Cinema Studies" -WorkDir "$env:GITHUB_WORKSPACE" -EmailForAPI "$env:EMAIL_FOR_API" -RequiredTopicKeywords "film,cinema,movie,documentary,television,screen studies,film theory,cinematic,hollywood,avant-garde film,media studies,visual culture"
+      - name: Save after batch 5
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: results-FilmCinemaStudies
+          path: "*.csv"
+          if-no-files-found: ignore
+          overwrite: true
+          retention-days: 90
+      - name: Batch 6
+        shell: pwsh
+        timeout-minutes: 45
+        continue-on-error: true
+        env:
+          EMAIL_FOR_API: ${{ secrets.EMAIL_FOR_API }}
+        run: .\run_dept.ps1 -Department "Film and Cinema Studies" -WorkDir "$env:GITHUB_WORKSPACE" -EmailForAPI "$env:EMAIL_FOR_API" -RequiredTopicKeywords "film,cinema,movie,documentary,television,screen studies,film theory,cinematic,hollywood,avant-garde film,media studies,visual culture"
+      - name: Final save
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: results-FilmCinemaStudies
+          path: "*.csv"
+          if-no-files-found: ignore
+          overwrite: true
+          retention-days: 90
+
+  # ── SCIENCE TECHNOLOGY SOCIETY ────────────────────────────────────────────────
+  science-technology-society:
+    name: Science Technology Society
+    runs-on: windows-latest
+    timeout-minutes: 355
+    if: ${{ github.event.inputs.department == '' || github.event.inputs.department == 'Science Technology Society' }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Restore previous progress
+        continue-on-error: true
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          $headers = @{ Authorization = "Bearer $env:GH_TOKEN"; Accept = "application/vnd.github+json" }
+          $resp = Invoke-RestMethod "https://api.github.com/repos/$env:GITHUB_REPOSITORY/actions/artifacts?name=results-ScienceTechnologySociety&per_page=5" -Headers $headers -EA SilentlyContinue
+          if ($resp -and $resp.artifacts -and $resp.artifacts.Count -gt 0) { $url = ($resp.artifacts | Where-Object { -not $_.expired } | Select-Object -First 1).archive_download_url; if ($url) { Invoke-WebRequest $url -Headers $headers -OutFile "prev.zip" -EA SilentlyContinue; if (Test-Path "prev.zip") { Expand-Archive "prev.zip" -DestinationPath . -Force; Remove-Item "prev.zip" -Force; $we = if (Test-Path "SOP_With_Emails.csv") { (Import-Csv "SOP_With_Emails.csv").Count } else { 0 }; Write-Host "Restored. Emails so far: $we" -ForegroundColor Green } } } else { Write-Host "Starting fresh." -ForegroundColor Yellow }
+      - name: Batch 1
+        shell: pwsh
+        timeout-minutes: 90
+        continue-on-error: true
+        env:
+          EMAIL_FOR_API: ${{ secrets.EMAIL_FOR_API }}
+        run: .\run_dept.ps1 -Department "Science Technology Society" -WorkDir "$env:GITHUB_WORKSPACE" -EmailForAPI "$env:EMAIL_FOR_API"
+      - name: Save after batch 1
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: results-ScienceTechnologySociety
+          path: "*.csv"
+          if-no-files-found: ignore
+          overwrite: true
+          retention-days: 90
+      - name: Batch 2
+        shell: pwsh
+        timeout-minutes: 50
+        continue-on-error: true
+        env:
+          EMAIL_FOR_API: ${{ secrets.EMAIL_FOR_API }}
+        run: .\run_dept.ps1 -Department "Science Technology Society" -WorkDir "$env:GITHUB_WORKSPACE" -EmailForAPI "$env:EMAIL_FOR_API"
+      - name: Save after batch 2
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: results-ScienceTechnologySociety
+          path: "*.csv"
+          if-no-files-found: ignore
+          overwrite: true
+          retention-days: 90
+      - name: Batch 3
+        shell: pwsh
+        timeout-minutes: 50
+        continue-on-error: true
+        env:
+          EMAIL_FOR_API: ${{ secrets.EMAIL_FOR_API }}
+        run: .\run_dept.ps1 -Department "Science Technology Society" -WorkDir "$env:GITHUB_WORKSPACE" -EmailForAPI "$env:EMAIL_FOR_API"
+      - name: Save after batch 3
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: results-ScienceTechnologySociety
+          path: "*.csv"
+          if-no-files-found: ignore
+          overwrite: true
+          retention-days: 90
+      - name: Batch 4
+        shell: pwsh
+        timeout-minutes: 50
+        continue-on-error: true
+        env:
+          EMAIL_FOR_API: ${{ secrets.EMAIL_FOR_API }}
+        run: .\run_dept.ps1 -Department "Science Technology Society" -WorkDir "$env:GITHUB_WORKSPACE" -EmailForAPI "$env:EMAIL_FOR_API"
+      - name: Save after batch 4
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: results-ScienceTechnologySociety
+          path: "*.csv"
+          if-no-files-found: ignore
+          overwrite: true
+          retention-days: 90
+      - name: Batch 5
+        shell: pwsh
+        timeout-minutes: 50
+        continue-on-error: true
+        env:
+          EMAIL_FOR_API: ${{ secrets.EMAIL_FOR_API }}
+        run: .\run_dept.ps1 -Department "Science Technology Society" -WorkDir "$env:GITHUB_WORKSPACE" -EmailForAPI "$env:EMAIL_FOR_API"
+      - name: Save after batch 5
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: results-ScienceTechnologySociety
+          path: "*.csv"
+          if-no-files-found: ignore
+          overwrite: true
+          retention-days: 90
+      - name: Batch 6
+        shell: pwsh
+        timeout-minutes: 45
+        continue-on-error: true
+        env:
+          EMAIL_FOR_API: ${{ secrets.EMAIL_FOR_API }}
+        run: .\run_dept.ps1 -Department "Science Technology Society" -WorkDir "$env:GITHUB_WORKSPACE" -EmailForAPI "$env:EMAIL_FOR_API"
+      - name: Final save
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: results-ScienceTechnologySociety
+          path: "*.csv"
+          if-no-files-found: ignore
+          overwrite: true
+          retention-days: 90
+
+  # ── COMPARATIVE LITERATURE ────────────────────────────────────────────────────
+  comparative-literature:
+    name: Comparative Literature
+    runs-on: windows-latest
+    timeout-minutes: 355
+    if: ${{ github.event.inputs.department == '' || github.event.inputs.department == 'Comparative Literature' }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Restore previous progress
+        continue-on-error: true
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          $headers = @{ Authorization = "Bearer $env:GH_TOKEN"; Accept = "application/vnd.github+json" }
+          $resp = Invoke-RestMethod "https://api.github.com/repos/$env:GITHUB_REPOSITORY/actions/artifacts?name=results-ComparativeLiterature&per_page=5" -Headers $headers -EA SilentlyContinue
+          if ($resp -and $resp.artifacts -and $resp.artifacts.Count -gt 0) { $url = ($resp.artifacts | Where-Object { -not $_.expired } | Select-Object -First 1).archive_download_url; if ($url) { Invoke-WebRequest $url -Headers $headers -OutFile "prev.zip" -EA SilentlyContinue; if (Test-Path "prev.zip") { Expand-Archive "prev.zip" -DestinationPath . -Force; Remove-Item "prev.zip" -Force; $we = if (Test-Path "SOP_With_Emails.csv") { (Import-Csv "SOP_With_Emails.csv").Count } else { 0 }; Write-Host "Restored. Emails so far: $we" -ForegroundColor Green } } } else { Write-Host "Starting fresh." -ForegroundColor Yellow }
+      - name: Batch 1
+        shell: pwsh
+        timeout-minutes: 90
+        continue-on-error: true
+        env:
+          EMAIL_FOR_API: ${{ secrets.EMAIL_FOR_API }}
+        run: .\run_dept.ps1 -Department "Comparative Literature" -WorkDir "$env:GITHUB_WORKSPACE" -EmailForAPI "$env:EMAIL_FOR_API" -RequiredTopicKeywords "comparative literature,world literature,translation studies,literary theory,postcolonial literature,global fiction,narrative theory,poetics"
+      - name: Save after batch 1
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: results-ComparativeLiterature
+          path: "*.csv"
+          if-no-files-found: ignore
+          overwrite: true
+          retention-days: 90
+      - name: Batch 2
+        shell: pwsh
+        timeout-minutes: 50
+        continue-on-error: true
+        env:
+          EMAIL_FOR_API: ${{ secrets.EMAIL_FOR_API }}
+        run: .\run_dept.ps1 -Department "Comparative Literature" -WorkDir "$env:GITHUB_WORKSPACE" -EmailForAPI "$env:EMAIL_FOR_API" -RequiredTopicKeywords "comparative literature,world literature,translation studies,literary theory,postcolonial literature,global fiction,narrative theory,poetics"
+      - name: Save after batch 2
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: results-ComparativeLiterature
+          path: "*.csv"
+          if-no-files-found: ignore
+          overwrite: true
+          retention-days: 90
+      - name: Batch 3
+        shell: pwsh
+        timeout-minutes: 50
+        continue-on-error: true
+        env:
+          EMAIL_FOR_API: ${{ secrets.EMAIL_FOR_API }}
+        run: .\run_dept.ps1 -Department "Comparative Literature" -WorkDir "$env:GITHUB_WORKSPACE" -EmailForAPI "$env:EMAIL_FOR_API" -RequiredTopicKeywords "comparative literature,world literature,translation studies,literary theory,postcolonial literature,global fiction,narrative theory,poetics"
+      - name: Save after batch 3
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: results-ComparativeLiterature
+          path: "*.csv"
+          if-no-files-found: ignore
+          overwrite: true
+          retention-days: 90
+      - name: Batch 4
+        shell: pwsh
+        timeout-minutes: 50
+        continue-on-error: true
+        env:
+          EMAIL_FOR_API: ${{ secrets.EMAIL_FOR_API }}
+        run: .\run_dept.ps1 -Department "Comparative Literature" -WorkDir "$env:GITHUB_WORKSPACE" -EmailForAPI "$env:EMAIL_FOR_API" -RequiredTopicKeywords "comparative literature,world literature,translation studies,literary theory,postcolonial literature,global fiction,narrative theory,poetics"
+      - name: Save after batch 4
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: results-ComparativeLiterature
+          path: "*.csv"
+          if-no-files-found: ignore
+          overwrite: true
+          retention-days: 90
+      - name: Batch 5
+        shell: pwsh
+        timeout-minutes: 50
+        continue-on-error: true
+        env:
+          EMAIL_FOR_API: ${{ secrets.EMAIL_FOR_API }}
+        run: .\run_dept.ps1 -Department "Comparative Literature" -WorkDir "$env:GITHUB_WORKSPACE" -EmailForAPI "$env:EMAIL_FOR_API" -RequiredTopicKeywords "comparative literature,world literature,translation studies,literary theory,postcolonial literature,global fiction,narrative theory,poetics"
+      - name: Save after batch 5
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: results-ComparativeLiterature
+          path: "*.csv"
+          if-no-files-found: ignore
+          overwrite: true
+          retention-days: 90
+      - name: Batch 6
+        shell: pwsh
+        timeout-minutes: 45
+        continue-on-error: true
+        env:
+          EMAIL_FOR_API: ${{ secrets.EMAIL_FOR_API }}
+        run: .\run_dept.ps1 -Department "Comparative Literature" -WorkDir "$env:GITHUB_WORKSPACE" -EmailForAPI "$env:EMAIL_FOR_API" -RequiredTopicKeywords "comparative literature,world literature,translation studies,literary theory,postcolonial literature,global fiction,narrative theory,poetics"
+      - name: Final save
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: results-ComparativeLiterature
+          path: "*.csv"
+          if-no-files-found: ignore
+          overwrite: true
+          retention-days: 90
+
+  # ── MEDIEVAL STUDIES ──────────────────────────────────────────────────────────
+  medieval-studies:
+    name: Medieval Studies
+    runs-on: windows-latest
+    timeout-minutes: 355
+    if: ${{ github.event.inputs.department == '' || github.event.inputs.department == 'Medieval Studies' }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Restore previous progress
+        continue-on-error: true
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          $headers = @{ Authorization = "Bearer $env:GH_TOKEN"; Accept = "application/vnd.github+json" }
+          $resp = Invoke-RestMethod "https://api.github.com/repos/$env:GITHUB_REPOSITORY/actions/artifacts?name=results-MedievalStudies&per_page=5" -Headers $headers -EA SilentlyContinue
+          if ($resp -and $resp.artifacts -and $resp.artifacts.Count -gt 0) { $url = ($resp.artifacts | Where-Object { -not $_.expired } | Select-Object -First 1).archive_download_url; if ($url) { Invoke-WebRequest $url -Headers $headers -OutFile "prev.zip" -EA SilentlyContinue; if (Test-Path "prev.zip") { Expand-Archive "prev.zip" -DestinationPath . -Force; Remove-Item "prev.zip" -Force; $we = if (Test-Path "SOP_With_Emails.csv") { (Import-Csv "SOP_With_Emails.csv").Count } else { 0 }; Write-Host "Restored. Emails so far: $we" -ForegroundColor Green } } } else { Write-Host "Starting fresh." -ForegroundColor Yellow }
+      - name: Batch 1
+        shell: pwsh
+        timeout-minutes: 90
+        continue-on-error: true
+        env:
+          EMAIL_FOR_API: ${{ secrets.EMAIL_FOR_API }}
+        run: .\run_dept.ps1 -Department "Medieval Studies" -WorkDir "$env:GITHUB_WORKSPACE" -EmailForAPI "$env:EMAIL_FOR_API" -RequiredTopicKeywords "medieval,middle ages,byzantine,crusades,feudal,manuscript,scholastic,gothic,early modern,renaissance,reformation"
+      - name: Save after batch 1
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: results-MedievalStudies
+          path: "*.csv"
+          if-no-files-found: ignore
+          overwrite: true
+          retention-days: 90
+      - name: Batch 2
+        shell: pwsh
+        timeout-minutes: 50
+        continue-on-error: true
+        env:
+          EMAIL_FOR_API: ${{ secrets.EMAIL_FOR_API }}
+        run: .\run_dept.ps1 -Department "Medieval Studies" -WorkDir "$env:GITHUB_WORKSPACE" -EmailForAPI "$env:EMAIL_FOR_API" -RequiredTopicKeywords "medieval,middle ages,byzantine,crusades,feudal,manuscript,scholastic,gothic,early modern,renaissance,reformation"
+      - name: Save after batch 2
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: results-MedievalStudies
+          path: "*.csv"
+          if-no-files-found: ignore
+          overwrite: true
+          retention-days: 90
+      - name: Batch 3
+        shell: pwsh
+        timeout-minutes: 50
+        continue-on-error: true
+        env:
+          EMAIL_FOR_API: ${{ secrets.EMAIL_FOR_API }}
+        run: .\run_dept.ps1 -Department "Medieval Studies" -WorkDir "$env:GITHUB_WORKSPACE" -EmailForAPI "$env:EMAIL_FOR_API" -RequiredTopicKeywords "medieval,middle ages,byzantine,crusades,feudal,manuscript,scholastic,gothic,early modern,renaissance,reformation"
+      - name: Save after batch 3
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: results-MedievalStudies
+          path: "*.csv"
+          if-no-files-found: ignore
+          overwrite: true
+          retention-days: 90
+      - name: Batch 4
+        shell: pwsh
+        timeout-minutes: 50
+        continue-on-error: true
+        env:
+          EMAIL_FOR_API: ${{ secrets.EMAIL_FOR_API }}
+        run: .\run_dept.ps1 -Department "Medieval Studies" -WorkDir "$env:GITHUB_WORKSPACE" -EmailForAPI "$env:EMAIL_FOR_API" -RequiredTopicKeywords "medieval,middle ages,byzantine,crusades,feudal,manuscript,scholastic,gothic,early modern,renaissance,reformation"
+      - name: Save after batch 4
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: results-MedievalStudies
+          path: "*.csv"
+          if-no-files-found: ignore
+          overwrite: true
+          retention-days: 90
+      - name: Batch 5
+        shell: pwsh
+        timeout-minutes: 50
+        continue-on-error: true
+        env:
+          EMAIL_FOR_API: ${{ secrets.EMAIL_FOR_API }}
+        run: .\run_dept.ps1 -Department "Medieval Studies" -WorkDir "$env:GITHUB_WORKSPACE" -EmailForAPI "$env:EMAIL_FOR_API" -RequiredTopicKeywords "medieval,middle ages,byzantine,crusades,feudal,manuscript,scholastic,gothic,early modern,renaissance,reformation"
+      - name: Save after batch 5
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: results-MedievalStudies
+          path: "*.csv"
+          if-no-files-found: ignore
+          overwrite: true
+          retention-days: 90
+      - name: Batch 6
+        shell: pwsh
+        timeout-minutes: 45
+        continue-on-error: true
+        env:
+          EMAIL_FOR_API: ${{ secrets.EMAIL_FOR_API }}
+        run: .\run_dept.ps1 -Department "Medieval Studies" -WorkDir "$env:GITHUB_WORKSPACE" -EmailForAPI "$env:EMAIL_FOR_API" -RequiredTopicKeywords "medieval,middle ages,byzantine,crusades,feudal,manuscript,scholastic,gothic,early modern,renaissance,reformation"
+      - name: Final save
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: results-MedievalStudies
+          path: "*.csv"
+          if-no-files-found: ignore
+          overwrite: true
+          retention-days: 90
+
+  # ── MUSIC STUDIES ─────────────────────────────────────────────────────────────
+  music-studies:
+    name: Music Studies
+    runs-on: windows-latest
+    timeout-minutes: 355
+    if: ${{ github.event.inputs.department == '' || github.event.inputs.department == 'Music Studies' }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Restore previous progress
+        continue-on-error: true
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          $headers = @{ Authorization = "Bearer $env:GH_TOKEN"; Accept = "application/vnd.github+json" }
+          $resp = Invoke-RestMethod "https://api.github.com/repos/$env:GITHUB_REPOSITORY/actions/artifacts?name=results-MusicStudies&per_page=5" -Headers $headers -EA SilentlyContinue
+          if ($resp -and $resp.artifacts -and $resp.artifacts.Count -gt 0) { $url = ($resp.artifacts | Where-Object { -not $_.expired } | Select-Object -First 1).archive_download_url; if ($url) { Invoke-WebRequest $url -Headers $headers -OutFile "prev.zip" -EA SilentlyContinue; if (Test-Path "prev.zip") { Expand-Archive "prev.zip" -DestinationPath . -Force; Remove-Item "prev.zip" -Force; $we = if (Test-Path "SOP_With_Emails.csv") { (Import-Csv "SOP_With_Emails.csv").Count } else { 0 }; Write-Host "Restored. Emails so far: $we" -ForegroundColor Green } } } else { Write-Host "Starting fresh." -ForegroundColor Yellow }
+      - name: Batch 1
+        shell: pwsh
+        timeout-minutes: 90
+        continue-on-error: true
+        env:
+          EMAIL_FOR_API: ${{ secrets.EMAIL_FOR_API }}
+        run: .\run_dept.ps1 -Department "Music Studies" -WorkDir "$env:GITHUB_WORKSPACE" -EmailForAPI "$env:EMAIL_FOR_API"
+      - name: Save after batch 1
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: results-MusicStudies
+          path: "*.csv"
+          if-no-files-found: ignore
+          overwrite: true
+          retention-days: 90
+      - name: Batch 2
+        shell: pwsh
+        timeout-minutes: 50
+        continue-on-error: true
+        env:
+          EMAIL_FOR_API: ${{ secrets.EMAIL_FOR_API }}
+        run: .\run_dept.ps1 -Department "Music Studies" -WorkDir "$env:GITHUB_WORKSPACE" -EmailForAPI "$env:EMAIL_FOR_API"
+      - name: Save after batch 2
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: results-MusicStudies
+          path: "*.csv"
+          if-no-files-found: ignore
+          overwrite: true
+          retention-days: 90
+      - name: Batch 3
+        shell: pwsh
+        timeout-minutes: 50
+        continue-on-error: true
+        env:
+          EMAIL_FOR_API: ${{ secrets.EMAIL_FOR_API }}
+        run: .\run_dept.ps1 -Department "Music Studies" -WorkDir "$env:GITHUB_WORKSPACE" -EmailForAPI "$env:EMAIL_FOR_API"
+      - name: Save after batch 3
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: results-MusicStudies
+          path: "*.csv"
+          if-no-files-found: ignore
+          overwrite: true
+          retention-days: 90
+      - name: Batch 4
+        shell: pwsh
+        timeout-minutes: 50
+        continue-on-error: true
+        env:
+          EMAIL_FOR_API: ${{ secrets.EMAIL_FOR_API }}
+        run: .\run_dept.ps1 -Department "Music Studies" -WorkDir "$env:GITHUB_WORKSPACE" -EmailForAPI "$env:EMAIL_FOR_API"
+      - name: Save after batch 4
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: results-MusicStudies
+          path: "*.csv"
+          if-no-files-found: ignore
+          overwrite: true
+          retention-days: 90
+      - name: Batch 5
+        shell: pwsh
+        timeout-minutes: 50
+        continue-on-error: true
+        env:
+          EMAIL_FOR_API: ${{ secrets.EMAIL_FOR_API }}
+        run: .\run_dept.ps1 -Department "Music Studies" -WorkDir "$env:GITHUB_WORKSPACE" -EmailForAPI "$env:EMAIL_FOR_API"
+      - name: Save after batch 5
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: results-MusicStudies
+          path: "*.csv"
+          if-no-files-found: ignore
+          overwrite: true
+          retention-days: 90
+      - name: Batch 6
+        shell: pwsh
+        timeout-minutes: 45
+        continue-on-error: true
+        env:
+          EMAIL_FOR_API: ${{ secrets.EMAIL_FOR_API }}
+        run: .\run_dept.ps1 -Department "Music Studies" -WorkDir "$env:GITHUB_WORKSPACE" -EmailForAPI "$env:EMAIL_FOR_API"
+      - name: Final save
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: results-MusicStudies
+          path: "*.csv"
+          if-no-files-found: ignore
+          overwrite: true
+          retention-days: 90
+
+  # ── QUEER STUDIES ─────────────────────────────────────────────────────────────
+  queer-studies:
+    name: Queer Studies
+    runs-on: windows-latest
+    timeout-minutes: 355
+    if: ${{ github.event.inputs.department == '' || github.event.inputs.department == 'Queer Studies' }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Restore previous progress
+        continue-on-error: true
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          $headers = @{ Authorization = "Bearer $env:GH_TOKEN"; Accept = "application/vnd.github+json" }
+          $resp = Invoke-RestMethod "https://api.github.com/repos/$env:GITHUB_REPOSITORY/actions/artifacts?name=results-QueerStudies&per_page=5" -Headers $headers -EA SilentlyContinue
+          if ($resp -and $resp.artifacts -and $resp.artifacts.Count -gt 0) { $url = ($resp.artifacts | Where-Object { -not $_.expired } | Select-Object -First 1).archive_download_url; if ($url) { Invoke-WebRequest $url -Headers $headers -OutFile "prev.zip" -EA SilentlyContinue; if (Test-Path "prev.zip") { Expand-Archive "prev.zip" -DestinationPath . -Force; Remove-Item "prev.zip" -Force; $we = if (Test-Path "SOP_With_Emails.csv") { (Import-Csv "SOP_With_Emails.csv").Count } else { 0 }; Write-Host "Restored. Emails so far: $we" -ForegroundColor Green } } } else { Write-Host "Starting fresh." -ForegroundColor Yellow }
+      - name: Batch 1
+        shell: pwsh
+        timeout-minutes: 90
+        continue-on-error: true
+        env:
+          EMAIL_FOR_API: ${{ secrets.EMAIL_FOR_API }}
+        run: .\run_dept.ps1 -Department "Queer Studies" -WorkDir "$env:GITHUB_WORKSPACE" -EmailForAPI "$env:EMAIL_FOR_API" -RequiredTopicKeywords "queer,lgbtq,sexuality,gay,lesbian,transgender,heteronormativity,gender identity,bisexual,queer theory,sexual politics"
+      - name: Save after batch 1
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: results-QueerStudies
+          path: "*.csv"
+          if-no-files-found: ignore
+          overwrite: true
+          retention-days: 90
+      - name: Batch 2
+        shell: pwsh
+        timeout-minutes: 50
+        continue-on-error: true
+        env:
+          EMAIL_FOR_API: ${{ secrets.EMAIL_FOR_API }}
+        run: .\run_dept.ps1 -Department "Queer Studies" -WorkDir "$env:GITHUB_WORKSPACE" -EmailForAPI "$env:EMAIL_FOR_API" -RequiredTopicKeywords "queer,lgbtq,sexuality,gay,lesbian,transgender,heteronormativity,gender identity,bisexual,queer theory,sexual politics"
+      - name: Save after batch 2
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: results-QueerStudies
+          path: "*.csv"
+          if-no-files-found: ignore
+          overwrite: true
+          retention-days: 90
+      - name: Batch 3
+        shell: pwsh
+        timeout-minutes: 50
+        continue-on-error: true
+        env:
+          EMAIL_FOR_API: ${{ secrets.EMAIL_FOR_API }}
+        run: .\run_dept.ps1 -Department "Queer Studies" -WorkDir "$env:GITHUB_WORKSPACE" -EmailForAPI "$env:EMAIL_FOR_API" -RequiredTopicKeywords "queer,lgbtq,sexuality,gay,lesbian,transgender,heteronormativity,gender identity,bisexual,queer theory,sexual politics"
+      - name: Save after batch 3
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: results-QueerStudies
+          path: "*.csv"
+          if-no-files-found: ignore
+          overwrite: true
+          retention-days: 90
+      - name: Batch 4
+        shell: pwsh
+        timeout-minutes: 50
+        continue-on-error: true
+        env:
+          EMAIL_FOR_API: ${{ secrets.EMAIL_FOR_API }}
+        run: .\run_dept.ps1 -Department "Queer Studies" -WorkDir "$env:GITHUB_WORKSPACE" -EmailForAPI "$env:EMAIL_FOR_API" -RequiredTopicKeywords "queer,lgbtq,sexuality,gay,lesbian,transgender,heteronormativity,gender identity,bisexual,queer theory,sexual politics"
+      - name: Save after batch 4
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: results-QueerStudies
+          path: "*.csv"
+          if-no-files-found: ignore
+          overwrite: true
+          retention-days: 90
+      - name: Batch 5
+        shell: pwsh
+        timeout-minutes: 50
+        continue-on-error: true
+        env:
+          EMAIL_FOR_API: ${{ secrets.EMAIL_FOR_API }}
+        run: .\run_dept.ps1 -Department "Queer Studies" -WorkDir "$env:GITHUB_WORKSPACE" -EmailForAPI "$env:EMAIL_FOR_API" -RequiredTopicKeywords "queer,lgbtq,sexuality,gay,lesbian,transgender,heteronormativity,gender identity,bisexual,queer theory,sexual politics"
+      - name: Save after batch 5
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: results-QueerStudies
+          path: "*.csv"
+          if-no-files-found: ignore
+          overwrite: true
+          retention-days: 90
+      - name: Batch 6
+        shell: pwsh
+        timeout-minutes: 45
+        continue-on-error: true
+        env:
+          EMAIL_FOR_API: ${{ secrets.EMAIL_FOR_API }}
+        run: .\run_dept.ps1 -Department "Queer Studies" -WorkDir "$env:GITHUB_WORKSPACE" -EmailForAPI "$env:EMAIL_FOR_API" -RequiredTopicKeywords "queer,lgbtq,sexuality,gay,lesbian,transgender,heteronormativity,gender identity,bisexual,queer theory,sexual politics"
+      - name: Final save
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: results-QueerStudies
+          path: "*.csv"
+          if-no-files-found: ignore
+          overwrite: true
+          retention-days: 90
+
+  # ── MIGRATION STUDIES ─────────────────────────────────────────────────────────
+  migration-studies:
+    name: Migration Studies
+    runs-on: windows-latest
+    timeout-minutes: 355
+    if: ${{ github.event.inputs.department == '' || github.event.inputs.department == 'Migration Studies' }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Restore previous progress
+        continue-on-error: true
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          $headers = @{ Authorization = "Bearer $env:GH_TOKEN"; Accept = "application/vnd.github+json" }
+          $resp = Invoke-RestMethod "https://api.github.com/repos/$env:GITHUB_REPOSITORY/actions/artifacts?name=results-MigrationStudies&per_page=5" -Headers $headers -EA SilentlyContinue
+          if ($resp -and $resp.artifacts -and $resp.artifacts.Count -gt 0) { $url = ($resp.artifacts | Where-Object { -not $_.expired } | Select-Object -First 1).archive_download_url; if ($url) { Invoke-WebRequest $url -Headers $headers -OutFile "prev.zip" -EA SilentlyContinue; if (Test-Path "prev.zip") { Expand-Archive "prev.zip" -DestinationPath . -Force; Remove-Item "prev.zip" -Force; $we = if (Test-Path "SOP_With_Emails.csv") { (Import-Csv "SOP_With_Emails.csv").Count } else { 0 }; Write-Host "Restored. Emails so far: $we" -ForegroundColor Green } } } else { Write-Host "Starting fresh." -ForegroundColor Yellow }
+      - name: Batch 1
+        shell: pwsh
+        timeout-minutes: 90
+        continue-on-error: true
+        env:
+          EMAIL_FOR_API: ${{ secrets.EMAIL_FOR_API }}
+        run: .\run_dept.ps1 -Department "Migration Studies" -WorkDir "$env:GITHUB_WORKSPACE" -EmailForAPI "$env:EMAIL_FOR_API" -RequiredTopicKeywords "immigration,migration,immigrant,diaspora,refugee,transnational,border,undocumented,asylum,citizenship,displacement"
+      - name: Save after batch 1
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: results-MigrationStudies
+          path: "*.csv"
+          if-no-files-found: ignore
+          overwrite: true
+          retention-days: 90
+      - name: Batch 2
+        shell: pwsh
+        timeout-minutes: 50
+        continue-on-error: true
+        env:
+          EMAIL_FOR_API: ${{ secrets.EMAIL_FOR_API }}
+        run: .\run_dept.ps1 -Department "Migration Studies" -WorkDir "$env:GITHUB_WORKSPACE" -EmailForAPI "$env:EMAIL_FOR_API" -RequiredTopicKeywords "immigration,migration,immigrant,diaspora,refugee,transnational,border,undocumented,asylum,citizenship,displacement"
+      - name: Save after batch 2
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: results-MigrationStudies
+          path: "*.csv"
+          if-no-files-found: ignore
+          overwrite: true
+          retention-days: 90
+      - name: Batch 3
+        shell: pwsh
+        timeout-minutes: 50
+        continue-on-error: true
+        env:
+          EMAIL_FOR_API: ${{ secrets.EMAIL_FOR_API }}
+        run: .\run_dept.ps1 -Department "Migration Studies" -WorkDir "$env:GITHUB_WORKSPACE" -EmailForAPI "$env:EMAIL_FOR_API" -RequiredTopicKeywords "immigration,migration,immigrant,diaspora,refugee,transnational,border,undocumented,asylum,citizenship,displacement"
+      - name: Save after batch 3
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: results-MigrationStudies
+          path: "*.csv"
+          if-no-files-found: ignore
+          overwrite: true
+          retention-days: 90
+      - name: Batch 4
+        shell: pwsh
+        timeout-minutes: 50
+        continue-on-error: true
+        env:
+          EMAIL_FOR_API: ${{ secrets.EMAIL_FOR_API }}
+        run: .\run_dept.ps1 -Department "Migration Studies" -WorkDir "$env:GITHUB_WORKSPACE" -EmailForAPI "$env:EMAIL_FOR_API" -RequiredTopicKeywords "immigration,migration,immigrant,diaspora,refugee,transnational,border,undocumented,asylum,citizenship,displacement"
+      - name: Save after batch 4
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: results-MigrationStudies
+          path: "*.csv"
+          if-no-files-found: ignore
+          overwrite: true
+          retention-days: 90
+      - name: Batch 5
+        shell: pwsh
+        timeout-minutes: 50
+        continue-on-error: true
+        env:
+          EMAIL_FOR_API: ${{ secrets.EMAIL_FOR_API }}
+        run: .\run_dept.ps1 -Department "Migration Studies" -WorkDir "$env:GITHUB_WORKSPACE" -EmailForAPI "$env:EMAIL_FOR_API" -RequiredTopicKeywords "immigration,migration,immigrant,diaspora,refugee,transnational,border,undocumented,asylum,citizenship,displacement"
+      - name: Save after batch 5
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: results-MigrationStudies
+          path: "*.csv"
+          if-no-files-found: ignore
+          overwrite: true
+          retention-days: 90
+      - name: Batch 6
+        shell: pwsh
+        timeout-minutes: 45
+        continue-on-error: true
+        env:
+          EMAIL_FOR_API: ${{ secrets.EMAIL_FOR_API }}
+        run: .\run_dept.ps1 -Department "Migration Studies" -WorkDir "$env:GITHUB_WORKSPACE" -EmailForAPI "$env:EMAIL_FOR_API" -RequiredTopicKeywords "immigration,migration,immigrant,diaspora,refugee,transnational,border,undocumented,asylum,citizenship,displacement"
+      - name: Final save
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: results-MigrationStudies
+          path: "*.csv"
+          if-no-files-found: ignore
+          overwrite: true
+          retention-days: 90
+
+  # ── DEVELOPMENT STUDIES ───────────────────────────────────────────────────────
+  development-studies:
+    name: Development Studies
+    runs-on: windows-latest
+    timeout-minutes: 355
+    if: ${{ github.event.inputs.department == '' || github.event.inputs.department == 'Development Studies' }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Restore previous progress
+        continue-on-error: true
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          $headers = @{ Authorization = "Bearer $env:GH_TOKEN"; Accept = "application/vnd.github+json" }
+          $resp = Invoke-RestMethod "https://api.github.com/repos/$env:GITHUB_REPOSITORY/actions/artifacts?name=results-DevelopmentStudies&per_page=5" -Headers $headers -EA SilentlyContinue
+          if ($resp -and $resp.artifacts -and $resp.artifacts.Count -gt 0) { $url = ($resp.artifacts | Where-Object { -not $_.expired } | Select-Object -First 1).archive_download_url; if ($url) { Invoke-WebRequest $url -Headers $headers -OutFile "prev.zip" -EA SilentlyContinue; if (Test-Path "prev.zip") { Expand-Archive "prev.zip" -DestinationPath . -Force; Remove-Item "prev.zip" -Force; $we = if (Test-Path "SOP_With_Emails.csv") { (Import-Csv "SOP_With_Emails.csv").Count } else { 0 }; Write-Host "Restored. Emails so far: $we" -ForegroundColor Green } } } else { Write-Host "Starting fresh." -ForegroundColor Yellow }
+      - name: Batch 1
+        shell: pwsh
+        timeout-minutes: 90
+        continue-on-error: true
+        env:
+          EMAIL_FOR_API: ${{ secrets.EMAIL_FOR_API }}
+        run: .\run_dept.ps1 -Department "Development Studies" -WorkDir "$env:GITHUB_WORKSPACE" -EmailForAPI "$env:EMAIL_FOR_API"
+      - name: Save after batch 1
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: results-DevelopmentStudies
+          path: "*.csv"
+          if-no-files-found: ignore
+          overwrite: true
+          retention-days: 90
+      - name: Batch 2
+        shell: pwsh
+        timeout-minutes: 50
+        continue-on-error: true
+        env:
+          EMAIL_FOR_API: ${{ secrets.EMAIL_FOR_API }}
+        run: .\run_dept.ps1 -Department "Development Studies" -WorkDir "$env:GITHUB_WORKSPACE" -EmailForAPI "$env:EMAIL_FOR_API"
+      - name: Save after batch 2
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: results-DevelopmentStudies
+          path: "*.csv"
+          if-no-files-found: ignore
+          overwrite: true
+          retention-days: 90
+      - name: Batch 3
+        shell: pwsh
+        timeout-minutes: 50
+        continue-on-error: true
+        env:
+          EMAIL_FOR_API: ${{ secrets.EMAIL_FOR_API }}
+        run: .\run_dept.ps1 -Department "Development Studies" -WorkDir "$env:GITHUB_WORKSPACE" -EmailForAPI "$env:EMAIL_FOR_API"
+      - name: Save after batch 3
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: results-DevelopmentStudies
+          path: "*.csv"
+          if-no-files-found: ignore
+          overwrite: true
+          retention-days: 90
+      - name: Batch 4
+        shell: pwsh
+        timeout-minutes: 50
+        continue-on-error: true
+        env:
+          EMAIL_FOR_API: ${{ secrets.EMAIL_FOR_API }}
+        run: .\run_dept.ps1 -Department "Development Studies" -WorkDir "$env:GITHUB_WORKSPACE" -EmailForAPI "$env:EMAIL_FOR_API"
+      - name: Save after batch 4
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: results-DevelopmentStudies
+          path: "*.csv"
+          if-no-files-found: ignore
+          overwrite: true
+          retention-days: 90
+      - name: Batch 5
+        shell: pwsh
+        timeout-minutes: 50
+        continue-on-error: true
+        env:
+          EMAIL_FOR_API: ${{ secrets.EMAIL_FOR_API }}
+        run: .\run_dept.ps1 -Department "Development Studies" -WorkDir "$env:GITHUB_WORKSPACE" -EmailForAPI "$env:EMAIL_FOR_API"
+      - name: Save after batch 5
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: results-DevelopmentStudies
+          path: "*.csv"
+          if-no-files-found: ignore
+          overwrite: true
+          retention-days: 90
+      - name: Batch 6
+        shell: pwsh
+        timeout-minutes: 45
+        continue-on-error: true
+        env:
+          EMAIL_FOR_API: ${{ secrets.EMAIL_FOR_API }}
+        run: .\run_dept.ps1 -Department "Development Studies" -WorkDir "$env:GITHUB_WORKSPACE" -EmailForAPI "$env:EMAIL_FOR_API"
+      - name: Final save
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: results-DevelopmentStudies
+          path: "*.csv"
+          if-no-files-found: ignore
+          overwrite: true
+          retention-days: 90
+
+  # ── FOLKLORE AND ETHNOMUSICOLOGY ──────────────────────────────────────────────
+  folklore-ethnomusicology:
+    name: Folklore and Ethnomusicology
+    runs-on: windows-latest
+    timeout-minutes: 355
+    if: ${{ github.event.inputs.department == '' || github.event.inputs.department == 'Folklore and Ethnomusicology' }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Restore previous progress
+        continue-on-error: true
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          $headers = @{ Authorization = "Bearer $env:GH_TOKEN"; Accept = "application/vnd.github+json" }
+          $resp = Invoke-RestMethod "https://api.github.com/repos/$env:GITHUB_REPOSITORY/actions/artifacts?name=results-FolkloreEthnomusicology&per_page=5" -Headers $headers -EA SilentlyContinue
+          if ($resp -and $resp.artifacts -and $resp.artifacts.Count -gt 0) { $url = ($resp.artifacts | Where-Object { -not $_.expired } | Select-Object -First 1).archive_download_url; if ($url) { Invoke-WebRequest $url -Headers $headers -OutFile "prev.zip" -EA SilentlyContinue; if (Test-Path "prev.zip") { Expand-Archive "prev.zip" -DestinationPath . -Force; Remove-Item "prev.zip" -Force; $we = if (Test-Path "SOP_With_Emails.csv") { (Import-Csv "SOP_With_Emails.csv").Count } else { 0 }; Write-Host "Restored. Emails so far: $we" -ForegroundColor Green } } } else { Write-Host "Starting fresh." -ForegroundColor Yellow }
+      - name: Batch 1
+        shell: pwsh
+        timeout-minutes: 90
+        continue-on-error: true
+        env:
+          EMAIL_FOR_API: ${{ secrets.EMAIL_FOR_API }}
+        run: .\run_dept.ps1 -Department "Folklore and Ethnomusicology" -WorkDir "$env:GITHUB_WORKSPACE" -EmailForAPI "$env:EMAIL_FOR_API" -RequiredTopicKeywords "folklore,ethnomusicology,oral tradition,folk music,traditional culture,folk narrative,material culture,ethnography,vernacular"
+      - name: Save after batch 1
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: results-FolkloreEthnomusicology
+          path: "*.csv"
+          if-no-files-found: ignore
+          overwrite: true
+          retention-days: 90
+      - name: Batch 2
+        shell: pwsh
+        timeout-minutes: 50
+        continue-on-error: true
+        env:
+          EMAIL_FOR_API: ${{ secrets.EMAIL_FOR_API }}
+        run: .\run_dept.ps1 -Department "Folklore and Ethnomusicology" -WorkDir "$env:GITHUB_WORKSPACE" -EmailForAPI "$env:EMAIL_FOR_API" -RequiredTopicKeywords "folklore,ethnomusicology,oral tradition,folk music,traditional culture,folk narrative,material culture,ethnography,vernacular"
+      - name: Save after batch 2
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: results-FolkloreEthnomusicology
+          path: "*.csv"
+          if-no-files-found: ignore
+          overwrite: true
+          retention-days: 90
+      - name: Batch 3
+        shell: pwsh
+        timeout-minutes: 50
+        continue-on-error: true
+        env:
+          EMAIL_FOR_API: ${{ secrets.EMAIL_FOR_API }}
+        run: .\run_dept.ps1 -Department "Folklore and Ethnomusicology" -WorkDir "$env:GITHUB_WORKSPACE" -EmailForAPI "$env:EMAIL_FOR_API" -RequiredTopicKeywords "folklore,ethnomusicology,oral tradition,folk music,traditional culture,folk narrative,material culture,ethnography,vernacular"
+      - name: Save after batch 3
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: results-FolkloreEthnomusicology
+          path: "*.csv"
+          if-no-files-found: ignore
+          overwrite: true
+          retention-days: 90
+      - name: Batch 4
+        shell: pwsh
+        timeout-minutes: 50
+        continue-on-error: true
+        env:
+          EMAIL_FOR_API: ${{ secrets.EMAIL_FOR_API }}
+        run: .\run_dept.ps1 -Department "Folklore and Ethnomusicology" -WorkDir "$env:GITHUB_WORKSPACE" -EmailForAPI "$env:EMAIL_FOR_API" -RequiredTopicKeywords "folklore,ethnomusicology,oral tradition,folk music,traditional culture,folk narrative,material culture,ethnography,vernacular"
+      - name: Save after batch 4
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: results-FolkloreEthnomusicology
+          path: "*.csv"
+          if-no-files-found: ignore
+          overwrite: true
+          retention-days: 90
+      - name: Batch 5
+        shell: pwsh
+        timeout-minutes: 50
+        continue-on-error: true
+        env:
+          EMAIL_FOR_API: ${{ secrets.EMAIL_FOR_API }}
+        run: .\run_dept.ps1 -Department "Folklore and Ethnomusicology" -WorkDir "$env:GITHUB_WORKSPACE" -EmailForAPI "$env:EMAIL_FOR_API" -RequiredTopicKeywords "folklore,ethnomusicology,oral tradition,folk music,traditional culture,folk narrative,material culture,ethnography,vernacular"
+      - name: Save after batch 5
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: results-FolkloreEthnomusicology
+          path: "*.csv"
+          if-no-files-found: ignore
+          overwrite: true
+          retention-days: 90
+      - name: Batch 6
+        shell: pwsh
+        timeout-minutes: 45
+        continue-on-error: true
+        env:
+          EMAIL_FOR_API: ${{ secrets.EMAIL_FOR_API }}
+        run: .\run_dept.ps1 -Department "Folklore and Ethnomusicology" -WorkDir "$env:GITHUB_WORKSPACE" -EmailForAPI "$env:EMAIL_FOR_API" -RequiredTopicKeywords "folklore,ethnomusicology,oral tradition,folk music,traditional culture,folk narrative,material culture,ethnography,vernacular"
+      - name: Final save
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: results-FolkloreEthnomusicology
+          path: "*.csv"
+          if-no-files-found: ignore
+          overwrite: true
+          retention-days: 90

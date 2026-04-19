@@ -3,7 +3,7 @@ param(
     [string]$Department,
     [string]$WorkDir                = "$env:USERPROFILE\Downloads",
     [string]$EmailForAPI            = "pakgeniusatwork@gmail.com",
-    [int]$MinWorksCount             = 3,
+    [int]$MinWorksCount             = 2,
     [int]$MinCitedBy                = 0,
     [int]$DelayMs                   = 500,
     [int]$BookBatch                 = 30,
@@ -49,6 +49,21 @@ $subfields = @{
     "Indigenous Studies"         = "3316"
     "Environmental Humanities"   = "1202"
     "Urban Studies"              = "3322"
+    "Classics"                   = "1205"
+    "Archaeology"                = "3301"
+    "Linguistics"                = "1209"
+    "Latin American Studies"     = "1202"   # History pool — filtered by Latin America keywords
+    "Asian Studies"              = "1202"   # History pool — filtered by broader Asia keywords
+    "European Studies"           = "1202"   # History pool — filtered by Europe keywords
+    "Film and Cinema Studies"    = "1203"   # Visual Arts pool — filtered by film/cinema keywords
+    "Science Technology Society" = "1207"   # History & Philosophy of Science
+    "Comparative Literature"     = "1208"   # Literature pool — filtered by comparative keywords
+    "Medieval Studies"           = "1202"   # History pool — filtered by medieval keywords
+    "Music Studies"              = "1210"
+    "Queer Studies"              = "3316"   # Cultural Studies pool — filtered by LGBTQ keywords
+    "Migration Studies"          = "3312"   # Sociology pool — filtered by migration keywords
+    "Development Studies"        = "3302"
+    "Folklore and Ethnomusicology" = "1208" # Literature pool — filtered by folklore keywords
 }
 
 # Parse required topic keywords (OR logic — author must match at least one)
@@ -68,7 +83,7 @@ $sfSafe  = $Department -replace '[^a-zA-Z0-9]','_'
 
 # Citation floor: 0 for most departments, caller can override (e.g. Anthropology uses 50)
 $minCitations = $MinCitationsWorks
-$maxScanPages = 200
+$maxScanPages = 500
 
 $withEmailCsv = "$WorkDir\SOP_With_Emails.csv"
 $noEmailCsv   = "$WorkDir\SOP_No_Email.csv"
